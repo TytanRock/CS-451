@@ -1,5 +1,7 @@
 pipeline {
-	agent : any
+	agent any
+
+
 	stages {
 		stage ('clean') {
 			steps {
