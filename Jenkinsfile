@@ -11,7 +11,9 @@ pipeline {
 		}
 		stage ('build 1') {
 			steps {
-				sh 'Ness1/compile.sh'
+				sh 'cd Ness1'
+				sh 'sh compile.sh'
+				sh 'cd ..'
 			}
 		}
 	}
