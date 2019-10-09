@@ -5,15 +5,12 @@ pipeline {
 	stages {
 		stage ('clean') {
 			steps {
-				sh 'rm -rf */bin/*'
-				sh 'rm -rf */build/*'
+				sh 'cd Ness1 && make clean'
 			}
 		}
 		stage ('build 1') {
 			steps {
-				sh 'cd Ness1'
-				sh 'sh compile.sh'
-				sh 'cd ..'
+				sh 'cd Ness1 && make'
 			}
 		}
 	}
