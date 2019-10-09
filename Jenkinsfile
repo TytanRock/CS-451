@@ -3,15 +3,16 @@ pipeline {
 
 
 	stages {
-		dir ('Ness1') {
-			stage ('clean') {
-				steps {
+		stage ('clean') {
+			steps {
+				dir('Ness1') {
 					sh 'make clean'
 				}
 			}
-		
-			stage ('build 1') {
-				steps {
+		}
+		stage ('build 1') {
+			steps {
+				dir('Ness1') {
 					sh 'cd Ness1 && make'
 				}
 			}
