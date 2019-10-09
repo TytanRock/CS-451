@@ -17,7 +17,7 @@ pipeline {
 		stage ('build 1') {
 			steps {
 				dir('Ness1') {
-					sh 'cd Ness1 && make'
+					sh 'make'
 				}
 			}
 		}
