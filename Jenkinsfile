@@ -3,7 +3,7 @@ pipeline {
 	stages {
 		stage ('clean') {
 			steps {
-				sh 'rm */bin/*;
+				sh 'rm */bin/*'
 				sh 'rm */build/*'
 			}
 		}
