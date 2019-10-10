@@ -14,6 +14,15 @@ struct {
 	unsigned v_flag : 1;  //!< V Flag set
 } _module;
 
+/**
+ * find_options
+ * Purpose:
+ *  Update module struct based on CLI parameters passed
+ *
+ * Parameters:
+ *  argc - argument count as passed from main
+ *  args - argument strings as passed from main
+ */
 void find_options(const int argc, char **args) {
 	char opt;
 
