@@ -9,14 +9,14 @@ pipeline {
 	stages {
 		stage ('clean') {
 			steps {
-				dir('Ness1') {
+				dir('NessRenoSmith1') {
 					sh 'make clean'
 				}
 			}
 		}
 		stage ('build 1') {
 			steps {
-				dir('Ness1') {
+				dir('NessRenoSmith1') {
 					sh 'make'
 				}
 			}
