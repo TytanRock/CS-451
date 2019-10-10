@@ -3,23 +3,56 @@
 #include <stdlib.h>
 #include <dirent.h>
 
+#include <stdio.h> // !< Remove after debugging is complete
+
 struct {
-	struct {
-		unsigned pid_h : 1;	//!< Append the PID column
-		unsigned tty_h : 1;	//!< Append the TTY column
-		unsigned time_h : 1;	//!< Append the TIME column
-		unsigned cmd_h : 1;	//!< Append the CMD column
-	}header_info; //!< Struct that holds header information
+	struct _process_header header_info;
 	
 	int pid;		//!< PID Number
-	char * tty;		//!< TTY owner
+	char state;		//!< State of process
+	int tty;		//!< TTY owner
 	unsigned long time;	//!< Time alive
-	char * cmd;		//!< CMD that called it
+	char cmd[255];		//!< CMD that called it
 }_module; //!< Module-specific information
 
 
-void fill_module(struct dirent * dir) {
+int fill_module(unsigned int pid) {
+	memset(_module.cmd, 0, 255);
+	
+	char stat_path[50];
+	strcpy(stat_path, "");
+	
+	/* Build the path to the stat file */
+	sprintf(stat_path, "/proc/%d/stat", pid);
+	
+	/* Open the stat file */
+	FILE * stat_file = fopen(stat_path, "r");
+	if(stat_file == NULL) {
+		/* Shouldn't happen, but if it does we're in trouble */
+		return -1;
+	}
+	
+	int useless_int;
 
+	fscanf(stat_file, "%d", &(_module.pid)); // Find the PID
+		
+	fscanf(stat_file, "%s", _module.cmd); // Find caller's name
+
+	fscanf(stat_file, "%c", &(_module.state)); // Find the state
+
+	fscanf(stat_file, "%d", &useless_int); // Bypass ppid
+
+	fscanf(stat_file, "%d", &useless_int); // Bypass pgrp
+
+	fscanf(stat_file, "%d", &useless_int); // Bypass session
+
+	fscanf(stat_file, "%d", &(_module.tty)); // Find the TTY
+
+	fclose(stat_file); //!< Always close the file when we're done
+	
+	printf("%s\n", _module.cmd);
+	
+	return 0;
 }
 
 /**
@@ -39,7 +72,7 @@ int get_process_info(unsigned int pid) {
 
 	while((current_dir = readdir(proc_dir)) != NULL) {
 		if(atoi(current_dir->d_name) == pid) {
-			fill_module(current_dir);
+			fill_module(pid);
 			return 0;
 		}
 	}
