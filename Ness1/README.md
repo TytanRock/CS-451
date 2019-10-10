@@ -17,3 +17,19 @@ Guidelines: Write a PS (Process Identifier) program that accepts up to 5 command
 
 **All of your output must match with the output of "ps -ely" for the same pid.**
 
+## Desired structure
+The desired structure for this project is broken down as follows:
+ - A main.c that parses user input, passes parsed input into modules, and prints characters back to user
+ - A processes.c that parses the stat and statm files and passes back to caller
+
+## Testing
+This project will use the following tests to ensure it is operating correctly.
+ - Compare output of `ps -p 1` and `5ps -p 1` and ensure they are the same
+ - Compare output of `ps -p` and `5ps -p` and ensure they are the same
+ - Compare output of `ps -p 1 -s -t -c -v` and `5ps -p 1 -s -t -c -v` and ensure they are the same
+ - Compare output of `ps` and `5ps` and ensure they are the same
+ - Ensure variations of parameters don't modify output
+ - Ensure single parameters don't modify output
+
+# Resources
+This README used the documentation provided in the assignment for some of the sections.
