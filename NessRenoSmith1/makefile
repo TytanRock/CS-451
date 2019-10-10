@@ -16,10 +16,12 @@ INCLUDES:= $(wildcard $(INCDIR)/*.h)
 OBJECTS := $(SOURCES:$(SRCDIR)%.c=$(OBJDIR)/%.o)
 
 $(BINDIR)/$(TARGET): $(OBJECTS)
+	@mkdir bin -p
 	@$(LINKER) $(OBJECTS) -o $(LFLAGS) $@
 	@echo "Linking complete"
 
 $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
+	@mkdir obj -p
 	@$(CC) -c $(CFLAGS) $< -o $@
 	@echo "Compiled "$<" successfully"
 
