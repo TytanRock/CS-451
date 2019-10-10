@@ -1,6 +1,6 @@
 # Assignment Number 1
 
-**Authors**: Cory Ness
+**Authors**: Cory Ness, Nicholas Reno, Eric Smith
 
 **Project**: Write your own PS program
 
