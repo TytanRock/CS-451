@@ -4,14 +4,16 @@
 #include <stdint.h>
 #include <assert.h>
 #include "cmockery/cmockery.h"
+#include "../include/processes.h"
 
-void compare_test() {
-	assert(1);
+void test_processes_headers() {
+	/* Always returns 0 because ID 1 is always valid */
+	assert(get_process_info(1) == 0);
 }
 
 int main() {
 	const UnitTest tests[] = {
-		unit_test(compare_test),
+		unit_test(test_processes_headers),
 	};
 	return run_tests(tests, "run");
 }
