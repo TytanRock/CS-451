@@ -20,15 +20,16 @@ INCLUDES:= $(wildcard $(INCDIR)/*.h)
 TESTS	:= $(wildcard $(TESTDIR)/*.c)
 OBJECTS := $(SOURCES:$(SRCDIR)%.c=$(OBJDIR)/%.o)
 TESTOBS := $(TESTS:$(TESTDIR)%.c=$(OBJDIR)/%.o)
+TESTALLOBS := $(filter-out $(OBJDIR)//main.o, $(TESTOBS) $(OBJECTS))
 
 $(BINDIR)/$(TARGET): $(OBJECTS)
 	@mkdir bin -p
 	@$(LINKER) $(OBJECTS) -o $(LFLAGS) $@
 	@echo "Linking complete"
 
-$(BINDIR)/$(TARGET_TEST): $(TESTOBS)
+$(BINDIR)/$(TARGET_TEST): $(TESTALLOBS)
 	@mkdir bin -p
-	@$(LINKER) $(TESTOBS) -o $(LFLAGS) $@
+	@$(LINKER) $(TESTALLOBS) -o $(LFLAGS) $@
 	@echo "Test Linking complete"
 
 $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
@@ -39,7 +40,7 @@ $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
 $(TESTOBS): $(OBJDIR)/%.o : $(TESTDIR)/%.c
 	@mkdir obj -p
 	@$(CC) -c $(CFLAGS) $< -o $@ -I $(TESTDIR)
-	@echo "Compiled"$<" successfully"
+	@echo "Compiled "$<" successfully"
 
 .PHONY: clean
 clean:
