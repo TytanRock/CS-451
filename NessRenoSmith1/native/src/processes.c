@@ -12,21 +12,38 @@ struct {
 	char state;		//!< State of process
 	int tty;		//!< TTY owner
 	unsigned long time;	//!< Time alive
-	char cmd[255];		//!< CMD that called it
+	char cmd[255];		//!< Name of command
+
+	int mem;		//!< Amount of virtual memory process takes
+	
+	char cmdline; 		//!< CMD that called it
 }_module; //!< Module-specific information
 
-
+/**
+ * fill_module
+ * Purpose:
+ *  Local function that fills module variables with relevant information for
+ *  the PS program
+ *
+ * Parameters:
+ *  pid - PID number of process to check
+ *
+ * Returns:
+ *  -1 if stat file for process fails to open
+ *  -2 if statm file for process fails to open
+ *  0 otherwise
+ */
 int fill_module(unsigned int pid) {
+	/* Initialize module */
 	memset(_module.cmd, 0, 255);
 	
-	char stat_path[50];
-	strcpy(stat_path, "");
+	char file_path[50];
+	strcpy(file_path, "");
 	
-	/* Build the path to the stat file */
-	sprintf(stat_path, "/proc/%d/stat", pid);
+	/* Open stat file to find general statistics */
+	sprintf(file_path, "/proc/%d/stat", pid);
 	
-	/* Open the stat file */
-	FILE * stat_file = fopen(stat_path, "r");
+	FILE * stat_file = fopen(file_path, "r");
 	if(stat_file == NULL) {
 		/* Shouldn't happen, but if it does we're in trouble */
 		return -1;
@@ -47,11 +64,26 @@ int fill_module(unsigned int pid) {
 	fscanf(stat_file, "%d", &useless_int); // Bypass session
 
 	fscanf(stat_file, "%d", &(_module.tty)); // Find the TTY
-
+	
 	fclose(stat_file); //!< Always close the file when we're done
+
+	/* Now open statm file to find memory statistics */
+	sprintf(file_path, "/proc/%d/statm", pid);
 	
-	printf("%s\n", _module.cmd);
+	FILE * statm_file = fopen(file_path, "r");
+
+	if(statm_file == NULL) {
+		/* Shouldn't happen, but if it does we're in trouble */
+		return -2;
+	}
 	
+	fscanf(statm_file, "%d", &(_module.mem)); // Find the mem (in pages) of process
+
+	fclose (statm_file);
+	
+	/* Now open cmdline file to find cmdline information */
+
+
 	return 0;
 }
 
@@ -64,7 +96,8 @@ int fill_module(unsigned int pid) {
  *  pid - ID number of process to get information from
  *
  * Returns:
- *  0 for success, -1 otherwise
+ *  -10 for invalid pid number
+ *  Result of fill_module otherwise
  */
 int get_process_info(unsigned int pid) {
 	DIR * proc_dir = opendir("/proc/");
@@ -72,9 +105,9 @@ int get_process_info(unsigned int pid) {
 
 	while((current_dir = readdir(proc_dir)) != NULL) {
 		if(atoi(current_dir->d_name) == pid) {
-			fill_module(pid);
-			return 0;
+			return fill_module(pid);
 		}
 	}
-	return -1;
+	return -10;
 }
+
