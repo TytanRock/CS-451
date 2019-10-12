@@ -28,12 +28,9 @@ struct {
  * Parameters:
  *  pid - PID number of process to check
  *
- * Returns:
- *  -1 if stat file for process fails to open
- *  -2 if statm file for process fails to open
- *  0 otherwise
+ * Returns: ERR_CODE based on status
  */
-int fill_module(unsigned int pid) {
+ERR_CODE fill_module(unsigned int pid) {
 	/* Initialize module */
 	memset(_module.cmd, 0, 255);
 	
@@ -46,7 +43,7 @@ int fill_module(unsigned int pid) {
 	FILE * stat_file = fopen(file_path, "r");
 	if(stat_file == NULL) {
 		/* Shouldn't happen, but if it does we're in trouble */
-		return -1;
+		return STATFILE_NOTPRESENT;
 	}
 	
 	int useless_int;
@@ -74,7 +71,7 @@ int fill_module(unsigned int pid) {
 
 	if(statm_file == NULL) {
 		/* Shouldn't happen, but if it does we're in trouble */
-		return -2;
+		return STATMFILE_NOTPRESENT;
 	}
 	
 	fscanf(statm_file, "%d", &(_module.mem)); // Find the mem (in pages) of process
@@ -84,7 +81,7 @@ int fill_module(unsigned int pid) {
 	/* Now open cmdline file to find cmdline information */
 
 
-	return 0;
+	return OK;
 }
 
 /**
@@ -95,11 +92,9 @@ int fill_module(unsigned int pid) {
  * Parameters:
  *  pid - ID number of process to get information from
  *
- * Returns:
- *  -10 for invalid pid number
- *  Result of fill_module otherwise
+ * Returns: ERR_CODE based on status of function
  */
-int get_process_info(unsigned int pid) {
+ERR_CODE get_process_info(unsigned int pid) {
 	DIR * proc_dir = opendir("/proc/");
 	struct dirent * current_dir;
 
@@ -108,6 +103,6 @@ int get_process_info(unsigned int pid) {
 			return fill_module(pid);
 		}
 	}
-	return -10;
+	return PID_INVALID;
 }
 
