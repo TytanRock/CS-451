@@ -22,33 +22,39 @@ struct {
  */
 void find_options(const int argc, char **args) {
 	char opt;
-
+	
+	/* Get all arguments from the command line */
 	while((opt = getopt(argc, args, VALID_OPTS)) != -1) {
 		switch(opt) {
 			case 'p':
 				_module.header_info.pid_h = 1;
+				/* If the optarg is invalid, this returns 0 which is handled later on in the program */
 				_module.pid_num = atoi(optarg);
 				break;
 			case 's':
-				//_module.s_flag = 1;
+				_module.header_info.state_h = 1;
 				break;
 			case 't':
-				//_module.t_flag = 1;
+				_module.header_info.time_h = 1;
 				break;
 			case 'c':
-				//_module.c_flag = 1;
+				_module.header_info.cmd_h = 1;
 				break;
 			case 'v':
-				//_module.v_flag = 1;
+				_module.header_info.mem_h = 1;
 				break;
 		}
 	}
 }
 
 int main(int argc, char **args) {
+	/* Parse command-line arguments */
 	find_options(argc, args);
 	
-	get_process_info(_module.pid_num);
+	/* Get process info from the pid number */
+	get_process_info(_module.pid_num, &(_module.header_info));
+
+
 
 	printf("vals are: %d\n", _module.pid_num);
 	return 0;

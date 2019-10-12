@@ -29,3 +29,6 @@ This project will use the following tests to ensure it is operating correctly.
 
 # Resources
 This README used the documentation provided in the assignment for some of the sections.
+
+The unit-testing code was also provided by cmocka at https://cmocka.org/, licensed under the Apache 2.0 license. 
+

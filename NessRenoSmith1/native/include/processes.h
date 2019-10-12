@@ -1,8 +1,6 @@
 #ifndef _PROCESSES_H_
 #define _PROCESSES_H_
 
-int get_process_info(unsigned int pid);
-
 typedef enum _ERR_CODE {
 	OK = 0,
 	PID_INVALID = -1,
@@ -15,10 +13,12 @@ typedef enum _ERR_CODE {
 
 typedef struct _process_header {
 	unsigned pid_h : 1;	//!< Append the PID column
-	unsigned tty_h : 1;	//!< Append the TTY column
+	unsigned state_h : 1;	//!< Append the STATE column
 	unsigned time_h : 1;	//!< Append the TIME column
 	unsigned cmd_h : 1;	//!< Append the CMD column
+	unsigned mem_h : 1;	//!< Apend the MEM column
 }process_info; //!< Struct that holds header information
 
+int get_process_info(unsigned int pid, struct _process_header * headerFlags);
 
 #endif // _PROCESSES_H_
