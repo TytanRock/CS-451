@@ -130,32 +130,61 @@ ERR_CODE get_process_info(unsigned int pid, process_info *headers) {
 	return PID_INVALID;
 }
 
-void append_string_2(char ** str, int * offset, int * sz, const char * format, va_list args) {
+/**
+ * worker_append_string
+ * Purpose: Append characters to a string following the format specified.
+ *  This will dynamically increase the size of the destination if needed.
+ *
+ * Parameters:
+ *  str - destination string pointer
+ *  offset - offset pointer
+ *  sz - current size of string pointer
+ *  format - character format
+ *  args - variable list of arguments initialized in caller
+ */
+void worker_append_string(char ** str, int * offset, int * sz, const char * format, va_list args) {
 	int appended_chars = 0;
 	
 	/* Make a copy of the variable arguments to ensure we don't screw up if we need to reallocate and call this function again */
 	va_list copy;
 	va_copy(copy, args);
-
+	
+	/* sprintf the destination string, and get how many characters successfully got written */
 	appended_chars = vsnprintf((*str) + *offset, *sz, format, copy);
-	if(appended_chars >= *sz) {
+	/* If we've reached the end, we need to allocate more room */
+	if(appended_chars + *offset >= *sz) {
 		/* We've run out of room, let's increase the size */
 		*sz *= 2;
 		*str = realloc(*str, *sz);
 		/* We need to call this again to ensure we write everything */
-		append_string_2(str, offset, sz, format, args);
+		worker_append_string(str, offset, sz, format, args);
 	} else {
 		/* Otherwise we've appended successfully, so move the offset */
 		*offset += appended_chars;
 	}
 }
 
+/**
+ * append_string
+ * Purpose: Append characters to a string following the format specified.
+ *  This will dynamically increase the size of the destination if needed.
+ *
+ * Parameters:
+ *  str - destination string pointer
+ *  offset - offset pointer
+ *  sz - current size of string pointer
+ *  format - character format
+ *  ... - optional arguments
+ */
 void append_string(char ** str, int * offset, int * sz,	const char * format, ...) {
+	/* Initialize variable argument list */
 	va_list args;
 	va_start(args, format);
 
-	append_string_2(str, offset, sz, format, args);
+	/* Call worker function */
+	worker_append_string(str, offset, sz, format, args);
 
+	/* Free the variable argument list */
 	va_end(args);
 }
 
@@ -174,7 +203,7 @@ ERR_CODE generate_header(char * ret_string, int max_len) {
  * Returns: ERR_CODE based on result of function
  */
 ERR_CODE produce_pid_info(char ** ret_string) {
-	int size = 10; /* Begin at a relatively small value */
+	int size = 1; /* Begin at a relatively small value */
 	int offset = 0; /* Begin at zero */
 	*ret_string = calloc(sizeof(char), size); /* Malloc the size of the string */
 	
