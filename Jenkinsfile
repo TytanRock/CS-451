@@ -9,21 +9,21 @@ pipeline {
 	stages {
 		stage ('clean') {
 			steps {
-				dir('NessRenoSmith1') {
+				dir('Ness1') {
 					sh 'make clean'
 				}
 			}
 		}
 		stage ('build 1') {
 			steps {
-				dir('NessRenoSmith1') {
+				dir('Ness1') {
 					sh 'make'
 				}
 			}
 		}
 		stage ('Test 1') {
 			steps {
-				dir('NessRenoSmith1') {
+				dir('Ness1') {
 					sh 'make bin/5ps_test'
 					sh './bin/5ps_test'
 				}
@@ -33,7 +33,7 @@ pipeline {
 
 	post {
 		always {
-			junit 'NessRenoSmith1/*.xml'
+			junit 'Ness1/*.xml'
 		}
 	}
 }
