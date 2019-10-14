@@ -145,7 +145,7 @@ ERR_CODE produce_pid_info(char * ret_string, int max_len) {
 		int hours = _module.time / 3600;
 		int mins = (_module.time /60) % 360;
 		int secs = _module.time % 60;
-		sprintf(ret_string, "%d : %d : %d\n", hours, mins, secs);
+		snprintf(ret_string, max_len, "%d : %d : %d\n", hours, mins, secs);
 	}
 }
 
