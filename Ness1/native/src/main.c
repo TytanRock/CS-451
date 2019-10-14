@@ -54,9 +54,14 @@ int main(int argc, char **args) {
 	/* Get process info from the pid number */
 	get_process_info(_module.pid_num, &(_module.header_info));
 
-	char print_string[100];
-	produce_pid_info(print_string, 100);
-	printf("%s", print_string);
+	char **print_string;
+	char * tmp;
+	print_string = &tmp;
+	produce_pid_info(print_string);
+	printf("%s", *print_string);
+	
+	/* The contract from produce_pid_info is we have to free the value */
+	free(*print_string);
 
 	return 0;
 }

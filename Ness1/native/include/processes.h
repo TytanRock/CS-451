@@ -20,6 +20,6 @@ typedef struct _process_header {
 }process_info; //!< Struct that holds header information
 
 ERR_CODE get_process_info(unsigned int pid, struct _process_header * headerFlags);
-ERR_CODE produce_pid_info(char * ret_string, int max_len);
+ERR_CODE produce_pid_info(char ** ret_string);
 
 #endif // _PROCESSES_H_

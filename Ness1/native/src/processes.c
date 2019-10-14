@@ -1,6 +1,7 @@
 #include "../include/processes.h"
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <dirent.h>
 #include <time.h>
 #include <unistd.h>
@@ -129,6 +130,39 @@ ERR_CODE get_process_info(unsigned int pid, process_info *headers) {
 	return PID_INVALID;
 }
 
+void append_string_2(char ** str, int * offset, int * sz, const char * format, va_list args) {
+	int appended_chars = 0;
+	
+	/* Make a copy of the variable arguments to ensure we don't screw up if we need to reallocate and call this function again */
+	va_list copy;
+	va_copy(copy, args);
+
+	appended_chars = vsnprintf((*str) + *offset, *sz, format, copy);
+	if(appended_chars >= *sz) {
+		/* We've run out of room, let's increase the size */
+		*sz *= 2;
+		*str = realloc(*str, *sz);
+		/* We need to call this again to ensure we write everything */
+		append_string_2(str, offset, sz, format, args);
+	} else {
+		/* Otherwise we've appended successfully, so move the offset */
+		*offset += appended_chars;
+	}
+}
+
+void append_string(char ** str, int * offset, int * sz,	const char * format, ...) {
+	va_list args;
+	va_start(args, format);
+
+	append_string_2(str, offset, sz, format, args);
+
+	va_end(args);
+}
+
+ERR_CODE generate_header(char * ret_string, int max_len) {
+	
+}
+
 /**
  * produce_pid_info
  * Purpose:
@@ -139,13 +173,16 @@ ERR_CODE get_process_info(unsigned int pid, process_info *headers) {
  *
  * Returns: ERR_CODE based on result of function
  */
-ERR_CODE produce_pid_info(char * ret_string, int max_len) {
-
+ERR_CODE produce_pid_info(char ** ret_string) {
+	int size = 10; /* Begin at a relatively small value */
+	int offset = 0; /* Begin at zero */
+	*ret_string = calloc(sizeof(char), size); /* Malloc the size of the string */
+	
 	if(_module.header_info.time_h) {
 		int hours = _module.time / 3600;
 		int mins = (_module.time /60) % 360;
 		int secs = _module.time % 60;
-		snprintf(ret_string, max_len, "%d : %d : %d\n", hours, mins, secs);
+		append_string(ret_string, &offset, &size, "%02d:%02d:%02d\n", hours, mins, secs);
 	}
 }
 
