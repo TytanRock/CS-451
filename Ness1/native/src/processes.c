@@ -48,42 +48,29 @@ ERR_CODE fill_module(unsigned int pid) {
 		return STATFILE_NOTPRESENT;
 	}
 	
-	
-	fscanf(stat_file, "%d", &(_module.pid)); // Find the PID
-		
-	fscanf(stat_file, "%s", _module.cmd); // Find caller's name
+	/* Find the PID, CMD, and State */
+	fscanf(stat_file, "%d %s %c", &(_module.pid), _module.cmd, &(_module.state));
 
-	fscanf(stat_file, "%c", &(_module.state)); // Find the state
-
-	fscanf(stat_file, "%*d"); // Bypass ppid
-
-	fscanf(stat_file, "%*d"); // Bypass pgrp
-
-	fscanf(stat_file, "%*d"); // Bypass session
+	/* Bypass ppid, pgrp, session */
+	fscanf(stat_file, "%*d %*d %*d");
 
 	fscanf(stat_file, "%d", &(_module.tty)); // Find the TTY
 	
-	fscanf(stat_file, "%*d"); // Bypass tpgid
+	/* Bypass tpgid, flags, minflt, cminflt, maiflt, cmaiflt */
+	fscanf(stat_file, "%*d %*u %*d %*d %*d %*d"); 
 
-	fscanf(stat_file, "%*u"); // Bypass flags
-
-	fscanf(stat_file, "%*d"); // Bypass minflt
-
-	fscanf(stat_file, "%*d"); // Bypass cminflt
-
-	fscanf(stat_file, "%*d"); // Bypass maiflt
-
-	fscanf(stat_file, "%*d"); // Bypass cmaiflt
+	int clock_ticks_per_sec = sysconf(_SC_CLK_TCK);
 
 	unsigned long utime;
 	fscanf(stat_file, "%lu", &utime); // Find utime
+	utime /= clock_ticks_per_sec; // Make sure it's in seconds
 
 	unsigned long stime;
 	fscanf(stat_file, "%lu", &stime); // Find stime
+	stime /= clock_ticks_per_sec; // Make sure it's in seconds
 
-	/* Divide total time by the system clock per second */
-	_module.time = (utime + stime) / sysconf(_SC_CLK_TCK);
-	printf("%d\n\n", _module.time);
+	/* Add utime and stime together */
+	_module.time = utime + stime;
 
 	fclose(stat_file); //!< Always close the file when we're done
 
@@ -158,7 +145,7 @@ ERR_CODE produce_pid_info(char * ret_string, int max_len) {
 		int hours = _module.time / 3600;
 		int mins = (_module.time /60) % 360;
 		int secs = _module.time % 60;
-		sprintf(ret_string, "%d : %d : %d", hours, mins, secs);
+		sprintf(ret_string, "%d : %d : %d\n", hours, mins, secs);
 	}
 }
 

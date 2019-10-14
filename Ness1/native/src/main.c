@@ -58,6 +58,5 @@ int main(int argc, char **args) {
 	produce_pid_info(print_string, 100);
 	printf("%s", print_string);
 
-	printf("vals are: %d\n", _module.pid_num);
 	return 0;
 }
