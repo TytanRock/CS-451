@@ -4,6 +4,6 @@
 
 This repository holds all the code for the CS 451 lab, operating systems.
 
-Do not copy this code directly, it's put up for the purpose as a guide only.
+This code is entirely my own, do not copy. The purpose of this code is to serve as a guide for others who want help.
 
 
