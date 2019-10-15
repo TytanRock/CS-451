@@ -1,6 +1,6 @@
 # Assignment Number 1
 
-**Authors**: Cory Ness, Nicholas Reno, Eric Smith
+**Authors**: Cory Ness
 
 **Project**: Write your own PS program
 
@@ -20,12 +20,13 @@ The desired structure for this project is broken down as follows:
 
 ## Testing
 This project will use the following tests to ensure it is operating correctly.
- - Compare output of `ps -p 1` and `5ps -p 1` and ensure they are the same
- - Compare output of `ps -p` and `5ps -p` and ensure they are the same
- - Compare output of `ps -p 1 -s -t -c -v` and `5ps -p 1 -s -t -c -v` and ensure they are the same
- - Compare output of `ps` and `5ps` and ensure they are the same
- - Ensure variations of parameters don't modify output
- - Ensure single parameters don't modify output
+ - Ensure 5ps successfully finds pid 1
+ - Ensure 5ps does not crash under any circumstances
+ - Ensure 5ps returns 0 with all valid arguments
+ - Ensure 5ps matches the output of `ps -ely` for any given PID
 
 # Resources
 This README used the documentation provided in the assignment for some of the sections.
+
+The unit-testing code was also provided by cmocka at https://cmocka.org/, licensed under the Apache 2.0 license. 
+
