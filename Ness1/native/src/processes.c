@@ -188,8 +188,64 @@ void append_string(char ** str, int * offset, int * sz,	const char * format, ...
 	va_end(args);
 }
 
-ERR_CODE generate_header(char * ret_string, int max_len) {
+ERR_CODE generate_headers(char ** ret_string, int * offset, int * sz) {
+	if(_module.header_info.state_h) {
+		/* Append the state header */
+		append_string(ret_string, offset, sz, "    S ");
+	}
+	if(1) {
+		/* Append PID number */
+		append_string(ret_string, offset, sz, "   PID ");
+	}
+	if(_module.header_info.mem_h) {
+		/* Append the memory */
+		append_string(ret_string, offset, sz, "       SZ ");
+	}
+	if(_module.header_info.time_h) {
+		/* Append the time */
+		append_string(ret_string, offset, sz, "     TIME ");
+	}
+	if(_module.header_info.cmd_h) {
+		/* Append the command */
+		append_string(ret_string, offset, sz, "CMD");
+	}
 	
+	/* Ensure newline is added */
+	append_string(ret_string, offset, sz, "\n");
+
+	return OK;
+}
+
+ERR_CODE fill_stats(char ** ret_string, int * offset, int * sz) {
+	if(_module.header_info.state_h) {
+		/* Fill with state info */
+		append_string(ret_string, offset, sz, " %4c ", _module.state);
+	}
+	if(1) {
+		/* Fill with pid number */
+		append_string(ret_string, offset, sz, " %5d ", _module.pid);
+	}
+
+	if(_module.header_info.mem_h) {
+		/* Fill with memory */
+		append_string(ret_string, offset, sz, " %8d ", _module.mem);
+	}
+
+	if(_module.header_info.time_h) {
+		/* Fill with time spent */
+		int hours = _module.time / 3600;
+		int mins = (_module.time /60) % 360;
+		int secs = _module.time % 60;
+		append_string(ret_string, offset, sz, " %02d:%02d:%02d ", hours, mins, secs);
+	}
+
+	if(_module.header_info.cmd_h) {
+		append_string(ret_string, offset, sz, "%-s", _module.cmdline);
+	}
+	
+	/* Ensure newline is at end of string */
+	append_string(ret_string, offset, sz, "\n");
+	return OK;
 }
 
 /**
@@ -207,12 +263,9 @@ ERR_CODE produce_pid_info(char ** ret_string) {
 	int offset = 0; /* Begin at zero */
 	*ret_string = calloc(sizeof(char), size); /* Malloc the size of the string */
 	
-	if(_module.header_info.time_h) {
-		int hours = _module.time / 3600;
-		int mins = (_module.time /60) % 360;
-		int secs = _module.time % 60;
-		append_string(ret_string, &offset, &size, "%02d:%02d:%02d\n", hours, mins, secs);
-	}
+	generate_headers(ret_string, &offset, &size);
+	
+	fill_stats(ret_string, &offset, &size);
 }
 
 

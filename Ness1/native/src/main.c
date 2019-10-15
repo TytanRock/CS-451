@@ -48,6 +48,9 @@ void find_options(const int argc, char **args) {
 }
 
 int main(int argc, char **args) {
+	/* Initialize pid number to 1, following spec */
+	_module.pid_num = 1;
+	
 	/* Parse command-line arguments */
 	find_options(argc, args);
 	
