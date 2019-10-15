@@ -45,6 +45,7 @@ void find_options(const int argc, char **args) {
 				break;
 			case '?':
 				if(optopt = 'p') {
+					/* Set pid_num to an invalid pid number to allow program to exit */
 					_module.pid_num = 0;
 				}
 				break;	
@@ -72,11 +73,18 @@ int main(int argc, char **args) {
 		}
 		return -1; // Failed program
 	}
-
+	
+	/* Create a pointer to a pointer */
 	char **print_string;
+	/* We need a char pointer to point to */
 	char * tmp;
+	/* Point to the char pointer */
 	print_string = &tmp;
+	
+	/* Get all the information needed */
 	produce_pid_info(print_string);
+	
+	/* Print it to the user */
 	printf("%s", *print_string);
 	
 	/* The contract from produce_pid_info is we have to free the value */
