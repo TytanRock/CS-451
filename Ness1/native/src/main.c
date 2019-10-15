@@ -43,6 +43,11 @@ void find_options(const int argc, char **args) {
 			case 'v':
 				_module.header_info.mem_h = 1;
 				break;
+			case '?':
+				if(optopt = 'p') {
+					_module.pid_num = 0;
+				}
+				break;	
 		}
 	}
 }
@@ -55,7 +60,18 @@ int main(int argc, char **args) {
 	find_options(argc, args);
 	
 	/* Get process info from the pid number */
-	get_process_info(_module.pid_num, &(_module.header_info));
+	ERR_CODE err = get_process_info(_module.pid_num, &(_module.header_info));
+	
+	if(err != OK) {
+		/* Figure out what failed it and let uesr know */
+		switch(err) {
+			case PID_INVALID:
+				fprintf(stderr, "PID is invalid");
+				break;
+
+		}
+		return -1; // Failed program
+	}
 
 	char **print_string;
 	char * tmp;
