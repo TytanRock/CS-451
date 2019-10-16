@@ -39,11 +39,21 @@ void test_append_works() {
 	assert_string_equal(*str, "This is a test string to test the function!\n10 is 0000000010\n");
 }
 
+void test_invalid_pid() {
+	assert_int_not_equal(system("./bin/5ps -p 0"), 0);
+}
+
+void test_all_parameters() {
+	assert_int_equal(system("./bin/5ps -stvcp 1"), 0);
+}
+
 int main() {
 	const UnitTest tests[] = {
 		unit_test(test_processes_headers),
 		unit_test(test_run_process),
 		unit_test(test_append_works),
+		unit_test(test_invalid_pid),
+		unit_test(test_all_parameters),
 	};
 	return run_tests(tests, "run");
 }
