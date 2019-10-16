@@ -1,3 +1,12 @@
+/**
+ * Author: Cory
+ * Assignment Number: 1
+ * Date of Submission: ~
+ * Name of this file: main.c
+ * Description of the program:
+ *  
+ */
+
 #include "stdio.h"
 #include "unistd.h"
 #include "stdlib.h"
