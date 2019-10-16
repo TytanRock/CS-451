@@ -4,6 +4,15 @@
 
 **Project**: Write your own PS program
 
+## How to Build
+
+ 1. Type `make` in main directory
+ 2. Makefile will do its thing, and place the binary into the `bin/` folder
+ 3. `cd` into `bin/`
+ 4. Type `./5ps [arguments] [-p <pid number>]` to test the program
+
+## Project (Used for developer only)
+
 **Guidelines**: Write a PS (Process Identifier) program that accepts up to 5 command line arguments. Those arguments are:
  - p <pid>: Display process information for the process number is `pid`. If this option is not present, use a pid number of 1. If user runs -p with no pid number, give an error message and exit the program.
  - s: Display the single-character state information about the process. This information is found in the `stat` file in the process's directory, looking at the third ("state") field. Not the information read is a character string. If this option is not present do not display the information.
