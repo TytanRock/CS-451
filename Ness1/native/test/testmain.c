@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <unistd.h>
+#include <stdio.h>
 #include "cmockery/cmockery.h"
 #include "../include/processes.h"
 
@@ -40,7 +42,18 @@ void test_append_works() {
 }
 
 void test_invalid_pid() {
+	int fg[2];
+	if(pipe(fg) < 0) {
+		fail();
+	}
+	dup2(fg[1], fileno(stderr));
+
 	assert_int_not_equal(system("./bin/5ps -p 0"), 0);
+
+	char str[255];
+	read(fg[0], str, 255);
+
+	assert_string_equal(str, "PID is invalid\n");
 }
 
 void test_all_parameters() {

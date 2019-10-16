@@ -37,6 +37,7 @@
 *.hex
 # Project-specific executables
 Ness1/bin/*
+Ness1/*.xml
 
 # Debug files
 *.dSYM/
