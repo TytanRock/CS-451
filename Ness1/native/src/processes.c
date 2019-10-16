@@ -101,6 +101,10 @@ ERR_CODE fill_module(unsigned int pid) {
 	
 	fclose(cmdline_file); // Always close your file
 
+	/* Fix CMD to remove the parenthesis */
+	strcpy(_module.cmd, _module.cmd + 1); // Remove first char
+	_module.cmd[strlen(_module.cmd) - 1] = '\0'; // Remove last char
+
 	return OK;
 }
 
@@ -205,7 +209,7 @@ ERR_CODE fill_stats(char ** ret_string, int * offset, int * sz) {
 	}
 
 	if(_module.header_info.cmd_h) {
-		append_string(ret_string, offset, sz, "%-s", _module.cmdline);
+		append_string(ret_string, offset, sz, "%-s", _module.cmd);
 	}
 	
 	/* Ensure newline is at end of string */
