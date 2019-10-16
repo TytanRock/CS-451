@@ -14,7 +14,6 @@ struct {
 	
 	int pid;		//!< PID Number
 	char state;		//!< State of process
-	int tty;		//!< TTY owner
 	unsigned long time;	//!< Time alive
 	char cmd[MAX_STR_SIZE];	//!< Name of command
 
@@ -38,14 +37,15 @@ ERR_CODE fill_module(unsigned int pid) {
 	/* Initialize module */
 	memset(_module.cmd, 0, 255);
 	
+	/* Initialize function variables */
 	char file_path[50];
 	strcpy(file_path, "");
-	
 	int clock_ticks_per_sec = sysconf(_SC_CLK_TCK);
 
 	/* Open stat file to find general statistics */
 	sprintf(file_path, "/proc/%d/stat", pid);
 	
+	/* Open the stat file */
 	FILE * stat_file = fopen(file_path, "r");
 	if(stat_file == NULL) {
 		/* Shouldn't happen, but if it does we're in trouble */
@@ -53,21 +53,19 @@ ERR_CODE fill_module(unsigned int pid) {
 	}
 	
 	/* Find the PID, CMD, and State */
-	fscanf(stat_file, "%d %s %c", &(_module.pid), _module.cmd, &(_module.state));
-	/* Bypass ppid, pgrp, session */
-	fscanf(stat_file, "%*d %*d %*d");
-	fscanf(stat_file, "%d", &(_module.tty)); // Find the TTY
+	/* Bypass ppid, pgrp, session, TTY */
 	/* Bypass tpgid, flags, minflt, cminflt, maiflt, cmaiflt */
+	fscanf(stat_file, "%d %s %c", &(_module.pid), _module.cmd, &(_module.state));
+	fscanf(stat_file, "%*d %*d %*d %*d");
 	fscanf(stat_file, "%*d %*u %*d %*d %*d %*d"); 
 	
+	/* Get time process is running */
 	unsigned long utime;
 	fscanf(stat_file, "%lu", &utime); // Find utime
 	utime /= clock_ticks_per_sec; // Make sure it's in seconds
-
 	unsigned long stime;
 	fscanf(stat_file, "%lu", &stime); // Find stime
 	stime /= clock_ticks_per_sec; // Make sure it's in seconds
-
 	/* Add utime and stime together */
 	_module.time = utime + stime;
 
@@ -75,9 +73,7 @@ ERR_CODE fill_module(unsigned int pid) {
 
 	/* Now open statm file to find memory statistics */
 	sprintf(file_path, "/proc/%d/statm", pid);
-	
 	FILE * statm_file = fopen(file_path, "r");
-
 	if(statm_file == NULL) {
 		/* Shouldn't happen, but if it does we're in trouble */
 		return STATMFILE_NOTPRESENT;
@@ -89,15 +85,13 @@ ERR_CODE fill_module(unsigned int pid) {
 	
 	/* Now open cmdline file to find cmdline information */
 	sprintf(file_path, "/proc/%d/cmdline", pid);
-
 	FILE * cmdline_file = fopen(file_path ,"r");
-
 	if(cmdline_file == NULL) {
 		/* Shouldn't happen, but if it does we're in trouble */
 		return CMDLINEFILE_NOTPRESENT;
 	}
 
-	fscanf(cmdline_file, "%s", _module.cmdline);
+	fscanf(cmdline_file, "%s", _module.cmdline); // Find cmdline
 	
 	fclose(cmdline_file); // Always close your file
 
@@ -105,7 +99,7 @@ ERR_CODE fill_module(unsigned int pid) {
 	strcpy(_module.cmd, _module.cmd + 1); // Remove first char
 	_module.cmd[strlen(_module.cmd) - 1] = '\0'; // Remove last char
 
-	return OK;
+	return OK; // We made it through, return OK
 }
 
 /**
@@ -119,16 +113,28 @@ ERR_CODE fill_module(unsigned int pid) {
  * Returns: ERR_CODE based on status of function
  */
 ERR_CODE get_process_info(unsigned int pid, process_info *headers) {
+	/* Check if pid is 0, if it is we know it's bad */
+	/* This is done here instead in the checking because atoi will return 0 for a bad parse */
+	if(pid == 0) {
+		return PID_INVALID;
+	}
+	
+	/* Open directory and initialize dirent struct */
 	DIR * proc_dir = opendir("/proc/");
 	struct dirent * current_dir;
 
+	/* Ensure our module variables are cleared */
 	memcpy(&(_module.header_info), headers, sizeof(process_info));
 
+	/* Check every directory inside /proc to see if it matches the pid number */
 	while((current_dir = readdir(proc_dir)) != NULL) {
+		/* If the directory matches our pid, use it in fill_module */
 		if(atoi(current_dir->d_name) == pid) {
 			return fill_module(pid);
 		}
 	}
+
+	/* We didn't find the directory, tell user their pid is invalid */
 	return PID_INVALID;
 }
 
@@ -144,22 +150,27 @@ ERR_CODE get_process_info(unsigned int pid, process_info *headers) {
  *  ERR_CODE based on state of function
  */
 ERR_CODE generate_headers(char ** ret_string, int * offset, int * sz) {
+	/* Check if we need to append state */
 	if(_module.header_info.state_h) {
 		/* Append the state header */
 		append_string(ret_string, offset, sz, "    S ");
 	}
+	/* We always need to append PID number */
 	if(1) {
 		/* Append PID number */
 		append_string(ret_string, offset, sz, "   PID ");
 	}
+	/* Check if we need to append memory */
 	if(_module.header_info.mem_h) {
 		/* Append the memory */
 		append_string(ret_string, offset, sz, "       SZ ");
 	}
+	/* Check if we need to append time */
 	if(_module.header_info.time_h) {
 		/* Append the time */
 		append_string(ret_string, offset, sz, "     TIME ");
 	}
+	/* Check if we need to append cmd */
 	if(_module.header_info.cmd_h) {
 		/* Append the command */
 		append_string(ret_string, offset, sz, "CMD");
@@ -168,7 +179,7 @@ ERR_CODE generate_headers(char ** ret_string, int * offset, int * sz) {
 	/* Ensure newline is added */
 	append_string(ret_string, offset, sz, "\n");
 
-	return OK;
+	return OK; // We made it through, return OK
 }
 
 /**
@@ -183,20 +194,22 @@ ERR_CODE generate_headers(char ** ret_string, int * offset, int * sz) {
  *  ERR_CODE based on success or fail
  */
 ERR_CODE fill_stats(char ** ret_string, int * offset, int * sz) {
+	/* Check if we need to append state */
 	if(_module.header_info.state_h) {
 		/* Fill with state info */
 		append_string(ret_string, offset, sz, " %4c ", _module.state);
 	}
+	/* We always need to append PID number */
 	if(1) {
 		/* Fill with pid number */
 		append_string(ret_string, offset, sz, " %5d ", _module.pid);
 	}
-
+	/* Check if we need to append memory */
 	if(_module.header_info.mem_h) {
 		/* Fill with memory */
 		append_string(ret_string, offset, sz, " %8d ", _module.mem);
 	}
-
+	/* Check if we need to append time */
 	if(_module.header_info.time_h) {
 		/* Fill with time spent */
 		int hours = _module.time / 3600;
@@ -207,7 +220,7 @@ ERR_CODE fill_stats(char ** ret_string, int * offset, int * sz) {
 				mins, 
 				secs);
 	}
-
+	/* Check if we need to append cmd */
 	if(_module.header_info.cmd_h) {
 		append_string(ret_string, offset, sz, "%-s", _module.cmd);
 	}
@@ -215,7 +228,7 @@ ERR_CODE fill_stats(char ** ret_string, int * offset, int * sz) {
 	/* Ensure newline is at end of string */
 	append_string(ret_string, offset, sz, "\n");
 	
-	return OK; // This will always return OK
+	return OK; // We made it to the end, return OK
 }
 
 /**
@@ -230,11 +243,11 @@ ERR_CODE fill_stats(char ** ret_string, int * offset, int * sz) {
  * Returns: ERR_CODE based on result of function
  */
 ERR_CODE produce_pid_info(char ** ret_string) {
-	ERR_CODE ret_err = OK;
-	
+	/* Initialize function variables */
+	ERR_CODE ret_err = OK; // Initialize return error variable
 	int size = 1; /* Begin at an arbitrarily small value */
 	int offset = 0; /* Begin at zero */
-	*ret_string = calloc(sizeof(char), size); /* Malloc the size of the string */
+	*ret_string = calloc(sizeof(char), size); /* calloc the size of the string */
 	
 	/* If we haven't err'd yet, generate headers */
 	if(ret_err == OK) {
