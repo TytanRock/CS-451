@@ -57,4 +57,4 @@ clean:
 	@rm -rf $(OBJDIR)
 	@rm -rf $(BINDIR)
 	@rm -rf zip
-	@rm out.zip
+	@rm -f out.zip
