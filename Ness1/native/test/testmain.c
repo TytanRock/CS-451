@@ -7,6 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <sys/wait.h>
 #include "cmockery/cmockery.h"
 #include "../include/processes.h"
 
@@ -20,8 +21,24 @@ void test_processes_headers() {
 }
 
 void test_run_process() {
+	int fg[2];
+	if(pipe(fg) < 0) {
+		fail();
+	}
+	int pid = fork();
+	if(pid == 0) {
+		dup2(fg[1], STDOUT_FILENO);
+		close(fg[1]);
+		close(fg[0]);
+		int ret = system("./bin/5ps -p 1");
+		exit(ret);
+	}
+	close(fg[1]);
+	int ret;
+	waitpid(pid, &ret, 0);
 	/* Call the actual binary */
-	assert_int_equal(system("./bin/5ps -p 1"), 0);
+	assert_int_equal(ret, 0);
+	close(fg[0]);
 }
 
 void test_append_works() {
@@ -46,18 +63,46 @@ void test_invalid_pid() {
 	if(pipe(fg) < 0) {
 		fail();
 	}
-	dup2(fg[1], fileno(stderr));
-
-	assert_int_not_equal(system("./bin/5ps -p 0"), 0);
+	
+	int pid = fork();
+	if(pid == 0) {
+		close(fg[0]);
+		dup2(fg[1], STDERR_FILENO);
+		close(fg[1]);
+		int ret = system("./bin/5ps -p -1");
+		fflush(stderr);
+		exit(-1);
+	}
+	close(fg[1]);
+	int ret;
+	waitpid(pid, &ret, 0);
+	assert_int_not_equal(ret, 0);
 
 	char str[255];
 	read(fg[0], str, 255);
 
 	assert_string_equal(str, "PID is invalid\n");
+	close(fg[0]);
 }
 
 void test_all_parameters() {
-	assert_int_equal(system("./bin/5ps -stvcp 1"), 0);
+	int fg[2];
+	if(pipe(fg) < 0) {
+		fail();
+	}
+	int pid = fork();
+	if(pid == 0) {
+		dup2(fg[1], STDOUT_FILENO);
+		close(fg[1]);
+		close(fg[0]);
+		int ret = system("./bin/5ps -stvcp 1");
+		exit(ret);
+	}
+	close(fg[1]);
+	int ret;
+	waitpid(pid, &ret, 0);
+	assert_int_equal(ret, 0);
+	close(fg[0]);
 }
 
 int main() {

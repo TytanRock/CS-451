@@ -92,7 +92,7 @@ int main(int argc, char **args) {
 				fprintf(stderr, "Some error occured\n");
 				break;
 		}
-		return -1; // Failed program
+		exit(-1); // Failed program
 	}
 	
 	/* Create a pointer to a pointer */
@@ -111,5 +111,5 @@ int main(int argc, char **args) {
 	/* The contract from produce_pid_info is we have to free the value */
 	free(*print_string);
 
-	return 0;
+	exit(0); // Program succeeded
 }
