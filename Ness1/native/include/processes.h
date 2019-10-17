@@ -1,3 +1,15 @@
+/**
+ * Author: Cory
+ * Assignment Number: 1
+ * Date of Submission: ~
+ * Name of this file: main.c
+ * Description of the program:
+ *  This program mimics the output of ps -ely for any specific pid
+ *  It uses the /proc directory to find the process information that
+ *  the user wants, specified by the 5 CLI parameters, p,s,t,v,c
+ */
+
+
 #ifndef _PROCESSES_H_
 #define _PROCESSES_H_
 
