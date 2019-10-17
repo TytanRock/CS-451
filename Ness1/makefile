@@ -58,3 +58,4 @@ clean:
 	@rm -rf $(BINDIR)
 	@rm -rf zip
 	@rm -f out.zip
+	@rm -f *.xml
