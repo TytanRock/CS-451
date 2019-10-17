@@ -42,7 +42,19 @@ $(TESTOBS): $(OBJDIR)/%.o : $(TESTDIR)/%.c
 	@$(CC) -c $(CFLAGS) $< -o $@ -I $(TESTDIR)
 	@echo "Compiled "$<" successfully"
 
+zipup: clean
+	@mkdir zip -p
+	@mkdir zip/native -p
+	@cp native/src/ zip/native -r
+	@cp native/include/ zip/native -r
+	@cp makefile zip
+	@cp README.md zip
+	@zip -r out.zip zip
+
+
 .PHONY: clean
 clean:
 	@rm -rf $(OBJDIR)
 	@rm -rf $(BINDIR)
+	@rm -rf zip
+	@rm out.zip
