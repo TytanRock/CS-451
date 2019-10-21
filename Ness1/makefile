@@ -49,6 +49,9 @@ zipup: clean
 	@cp native/include/ zip/native -r
 	@cp makefile zip
 	@cp README.md zip
+	@make
+	@./demomake.sh
+	@cp demo.txt zip
 	@zip -r out.zip zip
 
 
