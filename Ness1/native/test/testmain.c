@@ -80,6 +80,8 @@ void test_invalid_pid() {
 
 	char str[255];
 	read(fg[0], str, 255);
+	
+	str[15] = 0;
 
 	assert_string_equal(str, "PID is invalid\n");
 	close(fg[0]);
