@@ -11,6 +11,16 @@
  3. `cd` into `bin/`
  4. Type `./5ps [arguments] [-p <pid number>]` to test the program
 
+## Limitations
+This program satisifies all the requirements of the project, that is, it implements:
+ - p <pid number> - select the pid number
+ - s - Display state information
+ - t - Display process up time
+ - v - Display process memory (in pages)
+ - c - Display command used to start process
+
+This program achieves the `-c` flag by using the cmd state in the `stat` file, rather than the `cmdline` file. This is to better match the output of `ps -ely`.
+
 ## Project (Used for developer only)
 
 **Guidelines**: Write a PS (Process Identifier) program that accepts up to 5 command line arguments. Those arguments are:

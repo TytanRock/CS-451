@@ -52,7 +52,9 @@ zipup: clean
 	@make
 	@./demomake.sh
 	@cp demo.txt zip
-	@zip -r out.zip zip
+	@zip -r tmp.zip zip
+	@make clean
+	@mv tmp.zip out.zip
 
 
 .PHONY: clean

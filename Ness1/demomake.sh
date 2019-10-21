@@ -14,6 +14,8 @@ echo "This is the current state of pid 1:" > demo.txt
 ps -lyp 1 &>> demo.txt
 echo >> demo.txt
 
+echo "-------------------------------------------------------" &>> demo.txt
+
 echo "These are the test cases used for the program:" >> demo.txt
 
 
