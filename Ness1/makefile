@@ -59,3 +59,4 @@ clean:
 	@rm -rf zip
 	@rm -f out.zip
 	@rm -f *.xml
+	@rm -f demo.txt
