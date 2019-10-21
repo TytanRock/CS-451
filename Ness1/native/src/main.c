@@ -14,11 +14,20 @@
 #include "stdlib.h"
 #include "../include/processes.h"
 
-#define VALID_OPTS "p:stcv"
+#define VALID_OPTS "p:stcvh"
+
+#define HELP_OPS "Usage: 5ps [arguments] [-p <pid number>]\n \
+	-p <pid number>: specify pid to get information from \n \
+	-s: Include one-character state in output \n \
+	-t: Include time program has been running in output \n \
+	-c: Include command used to start process in output \n \
+	-v: Include memory (in pages) used by process in output \n \
+	-h: Display this help information\n"
 
 struct {
 	unsigned int pid_num; //!< PID Number to take snapshot of
-	
+	int display_help; // !< If this is nonzero, display help and exit	
+
 	struct _process_header header_info;
 } _module;
 
@@ -54,6 +63,9 @@ void find_options(const int argc, char **args) {
 			case 'v': // Mem argument
 				_module.header_info.mem_h = 1;
 				break;
+			case 'h': // Help argument
+				_module.display_help = 1;
+				break;
 			case '?': // Unknown argument
 				if(optopt = 'p') {
 					/* Set pid_num to an invalid pid number to allow program to exit */
@@ -67,13 +79,20 @@ void find_options(const int argc, char **args) {
 int main(int argc, char **args) {
 	/* Initialize pid number to 1, following spec */
 	_module.pid_num = 1;
+	_module.display_help = 0;
 	
 	/* Parse command-line arguments */
 	find_options(argc, args);
 	
+	/* If we display help, do that and exit immediately */
+	if(_module.display_help) {
+		printf("%s", HELP_OPS);
+		exit(0);
+	}
+
 	/* Get process info from the pid number */
 	ERR_CODE err = get_process_info(_module.pid_num, &(_module.header_info));
-	
+		
 	/* If err is not OK, we need to tell user and close the program */
 	if(err != OK) {
 		/* Figure out what failed it and let uesr know */
@@ -91,9 +110,11 @@ int main(int argc, char **args) {
 				fprintf(stderr, "\"cmdline\" file for pid does not exit\n");
 				break;
 			case OTHER_ERR:
+			default:
 				fprintf(stderr, "Some error occured\n");
 				break;
 		}
+		fprintf(stderr, "%s", HELP_OPS);
 		exit(-1); // Failed program
 	}
 	

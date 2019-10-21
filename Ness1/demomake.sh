@@ -1,11 +1,15 @@
 #!/bin/bash
 
 tests=(	"./bin/5ps" 
+	"./bin/5ps -h"
 	"./bin/5ps -p 0" 
 	"./bin/5ps -p" 
 	"./bin/5ps -p 1" 
+	"./bin/5ps -hp 1" 
 	"./bin/5ps -ctvsp 1" 
 	"./bin/5ps -ptcvs 1" 
+	"./bin/5ps -ptchvs 1"
+	"./bin/5ps -tcvsp 1" 
 	"./bin/5ps -t -c 192" 
 	"./bin/5ps -p 1 - -v -s"
 	)
