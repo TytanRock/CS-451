@@ -166,8 +166,8 @@ ERR_CODE generate_headers(char ** ret_string, int * offset, int * sz) {
 		/* Append the state header */
 		append_string(ret_string, offset, sz, "    S ");
 	}
-	/* We always need to append PID number */
-	if(1) {
+	/* Check if we need to append PID number */
+	if(_module.header_info.pid_h) {
 		/* Append PID number */
 		append_string(ret_string, offset, sz, "   PID ");
 	}
@@ -210,8 +210,8 @@ ERR_CODE fill_stats(char ** ret_string, int * offset, int * sz) {
 		/* Fill with state info */
 		append_string(ret_string, offset, sz, " %4c ", _module.state);
 	}
-	/* We always need to append PID number */
-	if(1) {
+	/* Check if we need to append PID number */
+	if(_module.header_info.pid_h) {
 		/* Fill with pid number */
 		append_string(ret_string, offset, sz, " %5d ", _module.pid);
 	}
