@@ -30,7 +30,7 @@ $(BINDIR)/$(TARGET): $(OBJECTS)
 	@echo "Linking complete"
 
 $(GCOVDIR)/$(TARGET_TEST): $(TESTALLOBS) $(GCOVDIR)/$(TARGET)
-	@mkdir $(BINDIR) -p
+	@mkdir $(GCOVDIR) -p
 	@$(LINKER) $(TESTALLOBS) -o $(LFLAGS) $@
 	@echo "Test Linking complete"
 
