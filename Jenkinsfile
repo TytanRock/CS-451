@@ -32,7 +32,7 @@ pipeline {
 				dir('Ness1') {
 					sh 'make gcov/5ps'
 					dir('Ness1/gcov') {
-						sh 'gcovr -r . --xml -o rep.xml'
+						sh 'gcovr -r . --xml'
 					}
 				}
 			}
