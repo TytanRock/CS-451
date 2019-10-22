@@ -107,6 +107,77 @@ void test_all_parameters() {
 	close(fg[0]);
 }
 
+void test_help() {
+	int fg[2];
+	if(pipe(fg) < 0) {
+		fail();
+	}
+	
+	int pid = fork();
+	if(pid == 0) {
+		close(fg[0]);
+		dup2(fg[1], STDERR_FILENO);
+		dup2(fg[1], STDOUT_FILENO);
+		close(fg[1]);
+		int ret = system("./gcov/5ps -h -p -1");
+		fflush(stderr);
+		exit(ret);
+	}
+	close(fg[1]);
+	int ret;
+	waitpid(pid, &ret, 0);
+	assert_int_equal(ret, 0);
+
+	close(fg[0]);
+}
+
+void test_invalid_param() {
+	int fg[2];
+	if(pipe(fg) < 0) {
+		fail();
+	}
+	
+	int pid = fork();
+	if(pid == 0) {
+		close(fg[0]);
+		dup2(fg[1], STDERR_FILENO);
+		dup2(fg[1], STDOUT_FILENO);
+		close(fg[1]);
+		int ret = system("./gcov/5ps -y");
+		fflush(stderr);
+		exit(-1);
+	}
+	close(fg[1]);
+	int ret;
+	waitpid(pid, &ret, 0);
+	assert_int_not_equal(ret, 0);
+
+	close(fg[0]);
+}
+
+void test_no_params() {
+	int fg[2];
+	if(pipe(fg) < 0) {
+		fail();
+	}
+	
+	int pid = fork();
+	if(pid == 0) {
+		close(fg[0]);
+		dup2(fg[1], STDERR_FILENO);
+		dup2(fg[1], STDOUT_FILENO);
+		close(fg[1]);
+		int ret = system("./gcov/5ps");
+		fflush(stderr);
+		exit(ret);
+	}
+	close(fg[1]);
+	int ret;
+	waitpid(pid, &ret, 0);
+	assert_int_equal(ret, 0);
+
+	close(fg[0]);
+}
 int main() {
 	const UnitTest tests[] = {
 		unit_test(test_processes_headers),
@@ -114,6 +185,9 @@ int main() {
 		unit_test(test_append_works),
 		unit_test(test_invalid_pid),
 		unit_test(test_all_parameters),
+		unit_test(test_help),
+		unit_test(test_invalid_param),
+		unit_test(test_no_params),
 	};
 	return run_tests(tests, "run");
 }

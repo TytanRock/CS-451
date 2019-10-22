@@ -67,7 +67,7 @@ void find_options(const int argc, char **args) {
 				_module.display_help = 1;
 				break;
 			case '?': // Unknown argument
-				if(optopt = 'p') {
+				if(optopt == 'p') {
 					/* Set pid_num to an invalid pid number to allow program to exit */
 					_module.pid_num = 0;
 				}
