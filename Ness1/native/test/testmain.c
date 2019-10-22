@@ -117,22 +117,17 @@ void test_help() {
 	if(pid == 0) {
 		close(fg[0]);
 		dup2(fg[1], STDERR_FILENO);
+		dup2(fg[1], STDOUT_FILENO);
 		close(fg[1]);
 		int ret = system("./gcov/5ps -h -p -1");
 		fflush(stderr);
-		exit(-1);
+		exit(ret);
 	}
 	close(fg[1]);
 	int ret;
 	waitpid(pid, &ret, 0);
-	assert_int_not_equal(ret, 0);
+	assert_int_equal(ret, 0);
 
-	char str[255];
-	read(fg[0], str, 255);
-	
-	str[15] = 0;
-
-	assert_string_equal(str, "PID is invalid\n");
 	close(fg[0]);
 }
 
@@ -146,6 +141,7 @@ void test_invalid_param() {
 	if(pid == 0) {
 		close(fg[0]);
 		dup2(fg[1], STDERR_FILENO);
+		dup2(fg[1], STDOUT_FILENO);
 		close(fg[1]);
 		int ret = system("./gcov/5ps -pt");
 		fflush(stderr);
@@ -156,12 +152,6 @@ void test_invalid_param() {
 	waitpid(pid, &ret, 0);
 	assert_int_not_equal(ret, 0);
 
-	char str[255];
-	read(fg[0], str, 255);
-	
-	str[15] = 0;
-
-	assert_string_equal(str, "PID is invalid\n");
 	close(fg[0]);
 }
 
@@ -175,22 +165,17 @@ void test_no_params() {
 	if(pid == 0) {
 		close(fg[0]);
 		dup2(fg[1], STDERR_FILENO);
+		dup2(fg[1], STDOUT_FILENO);
 		close(fg[1]);
 		int ret = system("./gcov/5ps");
 		fflush(stderr);
-		exit(-1);
+		exit(ret);
 	}
 	close(fg[1]);
 	int ret;
 	waitpid(pid, &ret, 0);
-	assert_int_not_equal(ret, 0);
+	assert_int_equal(ret, 0);
 
-	char str[255];
-	read(fg[0], str, 255);
-	
-	str[15] = 0;
-
-	assert_string_equal(str, "PID is invalid\n");
 	close(fg[0]);
 }
 int main() {
