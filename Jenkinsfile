@@ -1,8 +1,6 @@
 pipeline {
 	agent {
-		docker {
-			image 'gcc:latest'
-		}
+		dockerfile true
 	}
 
 
