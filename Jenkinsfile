@@ -22,7 +22,7 @@ pipeline {
 		stage ('Test 1') {
 			steps {
 				dir('Ness1') {
-					sh 'make bin/5ps_test'
+					sh 'make gcov/5ps_test'
 					sh './gcov/5ps_test'
 				}
 			}
