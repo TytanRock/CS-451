@@ -31,8 +31,8 @@ pipeline {
 			steps {
 				dir('Ness1') {
 					sh 'make gcov/5ps'
-					dir('Ness1/gcov') {
-						sh 'gcovr -r . --xml'
+					dir('gcov') {
+						sh 'gcovr -r . --xml -o rep.xml'
 					}
 				}
 			}
