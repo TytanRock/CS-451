@@ -33,6 +33,7 @@ pipeline {
 					sh 'make gcov/5ps'
 					dir('gcov') {
 						sh 'gcovr -r . --xml -o rep.xml'
+						sh 'gcovr -r . --html -o rep.html'
 					}
 				}
 			}
@@ -43,6 +44,7 @@ pipeline {
 		always {
 			junit 'Ness1/*.xml'
 			cobertura coberturaReportFile: 'Ness1/gcov/*.xml'
+			publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'Ness1/gcov', reportFiles: 'rep.html', reportName: 'HTML Report', reportTitles: ''])
 		}
 	}
 }
