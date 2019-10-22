@@ -5,6 +5,7 @@ SRCDIR = native/src
 INCDIR = native/include
 OBJDIR = obj
 BINDIR = bin
+GCOVDIR = gcov
 
 TESTDIR = native/test
 LIBDIR = ../libs
@@ -20,27 +21,38 @@ INCLUDES:= $(wildcard $(INCDIR)/*.h)
 TESTS	:= $(wildcard $(TESTDIR)/*.c)
 OBJECTS := $(SOURCES:$(SRCDIR)%.c=$(OBJDIR)/%.o)
 TESTOBS := $(TESTS:$(TESTDIR)%.c=$(OBJDIR)/%.o)
+GCOVOBS := $(SOURCES:$(SRCDIR)%.c=$(GCOVDIR)/%.o)
 TESTALLOBS := $(filter-out $(OBJDIR)//main.o, $(TESTOBS) $(OBJECTS))
 
 $(BINDIR)/$(TARGET): $(OBJECTS)
-	@mkdir bin -p
+	@mkdir $(BINDIR) -p
 	@$(LINKER) $(OBJECTS) -o $(LFLAGS) $@
 	@echo "Linking complete"
 
 $(BINDIR)/$(TARGET_TEST): $(TESTALLOBS) $(BINDIR)/$(TARGET)
-	@mkdir bin -p
+	@mkdir $(BINDIR) -p
 	@$(LINKER) $(TESTALLOBS) -o $(LFLAGS) $@
 	@echo "Test Linking complete"
 
 $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
-	@mkdir obj -p
+	@mkdir $(OBJDIR) -p
 	@$(CC) -c $(CFLAGS) $< -o $@
 	@echo "Compiled "$<" successfully"
 
 $(TESTOBS): $(OBJDIR)/%.o : $(TESTDIR)/%.c
-	@mkdir obj -p
+	@mkdir $(OBJDIR) -p
 	@$(CC) -c $(CFLAGS) $< -o $@ -I $(TESTDIR)
 	@echo "Compiled "$<" successfully"
+
+$(GCOVOBS): $(GCOVDIR)/%.o : $(SRCDIR)/%.c
+	@mkdir $(GCOVDIR) -p
+	@$(CC) -c $(CFLAGS) --coverage $< -o $@
+	@echo "compiled "$<" successfully"
+
+$(GCOVDIR)/$(TARGET): $(GCOVOBS)
+	@mkdir $(GCOVDIR) -p
+	@$(CC) $(GCOVOBS) --coverage -o $@
+	@echo gcov complete
 
 zipup: clean
 	@mkdir zip -p
@@ -65,3 +77,4 @@ clean:
 	@rm -f out.zip
 	@rm -f *.xml
 	@rm -f demo.txt
+	@rm -rf $(GCOVDIR)
