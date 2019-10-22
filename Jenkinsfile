@@ -33,7 +33,7 @@ pipeline {
 					sh 'make gcov/5ps'
 					dir('gcov') {
 						sh 'gcovr -r . --xml -o rep.xml'
-						sh 'gcovr -r . --html -o rep.html'
+						sh 'gcovr -r . --html --html-details -o rep.html'
 					}
 				}
 			}
