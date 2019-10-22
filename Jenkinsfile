@@ -32,7 +32,7 @@ pipeline {
 				dir('Ness1') {
 					sh 'make gcov/5ps'
 					dir('Ness1/gcov') {
-						sh 'gcovr -r . --html'
+						sh 'gcovr -r . --html > index.html'
 					}
 				}
 			}
@@ -43,5 +43,6 @@ pipeline {
 		always {
 			junit 'Ness1/*.xml'
 		}
+		publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'Ness1/gcov', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: ''])
 	}
 }
