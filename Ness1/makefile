@@ -48,6 +48,7 @@ $(GCOVOBS): $(GCOVDIR)/%.o : $(SRCDIR)/%.c
 	@mkdir $(GCOVDIR) -p
 	@$(CC) -c $(CFLAGS) --coverage $< -o $@
 	@echo "compiled "$<" successfully"
+	@cp $< $(GCOVDIR)
 
 $(GCOVDIR)/$(TARGET): $(GCOVOBS)
 	@mkdir $(GCOVDIR) -p
