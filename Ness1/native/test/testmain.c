@@ -30,13 +30,13 @@ void test_run_process() {
 		dup2(fg[1], STDOUT_FILENO);
 		close(fg[1]);
 		close(fg[0]);
-		int ret = system("./bin/5ps -p 1");
+		int ret = system("./gcov/5ps -p 1");
 		exit(ret);
 	}
 	close(fg[1]);
 	int ret;
 	waitpid(pid, &ret, 0);
-	/* Call the actual binary */
+	/* Call the actual gcovary */
 	assert_int_equal(ret, 0);
 	close(fg[0]);
 }
@@ -69,7 +69,7 @@ void test_invalid_pid() {
 		close(fg[0]);
 		dup2(fg[1], STDERR_FILENO);
 		close(fg[1]);
-		int ret = system("./bin/5ps -p -1");
+		int ret = system("./gcov/5ps -p -1");
 		fflush(stderr);
 		exit(-1);
 	}
@@ -97,7 +97,7 @@ void test_all_parameters() {
 		dup2(fg[1], STDOUT_FILENO);
 		close(fg[1]);
 		close(fg[0]);
-		int ret = system("./bin/5ps -stvcp 1");
+		int ret = system("./gcov/5ps -stvcp 1");
 		exit(ret);
 	}
 	close(fg[1]);

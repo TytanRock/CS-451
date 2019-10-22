@@ -1,8 +1,6 @@
 pipeline {
 	agent {
-		docker {
-			image 'gcc:latest'
-		}
+		dockerfile true
 	}
 
 
@@ -24,8 +22,18 @@ pipeline {
 		stage ('Test 1') {
 			steps {
 				dir('Ness1') {
-					sh 'make bin/5ps_test'
-					sh './bin/5ps_test'
+					sh 'make gcov/5ps_test'
+					sh './gcov/5ps_test'
+				}
+			}
+		}
+		stage ('Coverage 1') {
+			steps {
+				dir('Ness1') {
+					sh 'make gcov/5ps'
+					dir('gcov') {
+						sh 'gcovr -r . --xml -o rep.xml'
+					}
 				}
 			}
 		}
@@ -34,6 +42,7 @@ pipeline {
 	post {
 		always {
 			junit 'Ness1/*.xml'
+			cobertura coberturaReportFile: 'Ness1/gcov/*.xml'
 		}
 	}
 }
