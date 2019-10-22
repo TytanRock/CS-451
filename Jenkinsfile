@@ -42,7 +42,7 @@ pipeline {
 	post {
 		always {
 			junit 'Ness1/*.xml'
-			cobertura coberturaReportFile: 'Ness1/gcov/*.xml'
+			cobertura coberturaReportFile: 'Ness1/gcov/rep.xml'
 		}
 	}
 }
