@@ -29,7 +29,7 @@ pipeline {
 		}
 		stage ('Cover 1') {
 			steps {
-				dir('Ness1) {
+				dir('Ness1') {
 					sh 'pip install gcovr'
 					sh 'make gcov/5ps'
 					dir('Ness1/gcov') {
