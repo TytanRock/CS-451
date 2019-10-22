@@ -161,34 +161,44 @@ ERR_CODE get_process_info(unsigned int pid, process_info *headers) {
  *  ERR_CODE based on state of function
  */
 ERR_CODE generate_headers(char ** ret_string, int * offset, int * sz) {
+	int something_written = 0; // !< Bool to check if something is written
+
 	/* Check if we need to append state */
 	if(_module.header_info.state_h) {
 		/* Append the state header */
 		append_string(ret_string, offset, sz, "    S ");
+		something_written = 1;
 	}
 	/* Check if we need to append PID number */
 	if(_module.header_info.pid_h) {
 		/* Append PID number */
 		append_string(ret_string, offset, sz, "   PID ");
+		something_written = 1;
 	}
 	/* Check if we need to append memory */
 	if(_module.header_info.mem_h) {
 		/* Append the memory */
 		append_string(ret_string, offset, sz, "       SZ ");
+		something_written = 1;
 	}
 	/* Check if we need to append time */
 	if(_module.header_info.time_h) {
 		/* Append the time */
 		append_string(ret_string, offset, sz, "     TIME ");
+		something_written = 1;
 	}
 	/* Check if we need to append cmd */
 	if(_module.header_info.cmd_h) {
 		/* Append the command */
 		append_string(ret_string, offset, sz, "CMD");
+		something_written = 1;
 	}
 	
-	/* Ensure newline is added */
-	append_string(ret_string, offset, sz, "\n");
+	/* Check if something is written in order to append newline */
+	if(something_written) {
+		/* Ensure newline is at end of string */
+		append_string(ret_string, offset, sz, "\n");
+	}
 
 	return OK; // We made it through, return OK
 }
@@ -205,20 +215,25 @@ ERR_CODE generate_headers(char ** ret_string, int * offset, int * sz) {
  *  ERR_CODE based on success or fail
  */
 ERR_CODE fill_stats(char ** ret_string, int * offset, int * sz) {
+	int something_written = 0; // !< Bool to check if something is written
+
 	/* Check if we need to append state */
 	if(_module.header_info.state_h) {
 		/* Fill with state info */
 		append_string(ret_string, offset, sz, " %4c ", _module.state);
+		something_written = 1;
 	}
 	/* Check if we need to append PID number */
 	if(_module.header_info.pid_h) {
 		/* Fill with pid number */
 		append_string(ret_string, offset, sz, " %5d ", _module.pid);
+		something_written = 1;
 	}
 	/* Check if we need to append memory */
 	if(_module.header_info.mem_h) {
 		/* Fill with memory */
 		append_string(ret_string, offset, sz, " %8d ", _module.mem);
+		something_written = 1;
 	}
 	/* Check if we need to append time */
 	if(_module.header_info.time_h) {
@@ -230,15 +245,20 @@ ERR_CODE fill_stats(char ** ret_string, int * offset, int * sz) {
 				hours, 
 				mins, 
 				secs);
+		something_written = 1;
 	}
 	/* Check if we need to append cmd */
 	if(_module.header_info.cmd_h) {
 		append_string(ret_string, offset, sz, "%-s", _module.cmd);
+		something_written = 1;
 	}
 	
-	/* Ensure newline is at end of string */
-	append_string(ret_string, offset, sz, "\n");
-	
+	/* Check if something is written in order to append newline */
+	if(something_written) {
+		/* Ensure newline is at end of string */
+		append_string(ret_string, offset, sz, "\n");
+	}
+
 	return OK; // We made it to the end, return OK
 }
 
