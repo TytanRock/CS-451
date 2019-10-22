@@ -42,7 +42,7 @@ pipeline {
 	post {
 		always {
 			junit 'Ness1/*.xml'
-		}
 		publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'Ness1/gcov', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: ''])
+		}
 	}
 }
