@@ -29,7 +29,7 @@ $(BINDIR)/$(TARGET): $(OBJECTS)
 	@$(LINKER) $(OBJECTS) -o $(LFLAGS) $@
 	@echo "Linking complete"
 
-$(BINDIR)/$(TARGET_TEST): $(TESTALLOBS) $(BINDIR)/$(TARGET)
+$(GCOVDIR)/$(TARGET_TEST): $(TESTALLOBS) $(BINDIR)/$(TARGET)
 	@mkdir $(BINDIR) -p
 	@$(LINKER) $(TESTALLOBS) -o $(LFLAGS) $@
 	@echo "Test Linking complete"

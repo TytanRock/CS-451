@@ -23,7 +23,7 @@ pipeline {
 			steps {
 				dir('Ness1') {
 					sh 'make bin/5ps_test'
-					sh './bin/5ps_test'
+					sh './gcov/5ps_test'
 				}
 			}
 		}
