@@ -143,7 +143,7 @@ void test_invalid_param() {
 		dup2(fg[1], STDERR_FILENO);
 		dup2(fg[1], STDOUT_FILENO);
 		close(fg[1]);
-		int ret = system("./gcov/5ps -pt");
+		int ret = system("./gcov/5ps -py");
 		fflush(stderr);
 		exit(-1);
 	}
