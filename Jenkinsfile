@@ -1,6 +1,8 @@
 pipeline {
 	agent {
-		dockerfile true
+		docker {
+			image 'gcc:latest'
+		}
 	}
 
 
@@ -30,6 +32,7 @@ pipeline {
 		stage ('Cover 1') {
 			steps {
 				dir('Ness1') {
+					sh 'apt-get install python'
 					sh 'pip install gcovr'
 					sh 'make gcov/5ps'
 					dir('Ness1/gcov') {
