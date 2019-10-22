@@ -27,7 +27,7 @@ pipeline {
 				}
 			}
 		}
-		stage ('Cover 1') {
+		stage ('Coverage 1') {
 			steps {
 				dir('Ness1') {
 					sh 'make gcov/5ps'
@@ -42,7 +42,7 @@ pipeline {
 	post {
 		always {
 			junit 'Ness1/*.xml'
-			cobertura coberturaReportFile: 'Ness1/gcov/rep.xml'
+			cobertura coberturaReportFile: 'Ness1/gcov/*.xml'
 		}
 	}
 }
