@@ -1,7 +1,7 @@
 /**
  * Author: Cory
  * Assignment Number: 1
- * Date of Submission: ~
+ * Date of Submission: 10/23/2019
  * Name of this file: main.c
  * Description of the program:
  *  This program mimics the output of ps -ely for any specific pid
