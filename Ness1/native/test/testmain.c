@@ -178,6 +178,33 @@ void test_no_params() {
 
 	close(fg[0]);
 }
+
+void test_stat_fail() {
+	int fg[2];
+	if(pipe(fg) < 0) {
+		fail();
+	}
+	
+	int pid = fork();
+	if(pid == 0) {
+		close(fg[0]);
+		dup2(fg[1], STDERR_FILENO);
+		dup2(fg[1], STDOUT_FILENO);
+		close(fg[1]);
+		FILE * fl = fopen("/proc/1/stat", "r");
+		int ret = system("./gcov/5ps -p 1");
+		fclose(fl);
+		fflush(stderr);
+		exit(ret);
+	}
+	close(fg[1]);
+	int ret;
+	waitpid(pid, &ret, 0);
+	assert_int_equal(ret, 0);
+
+	close(fg[0]);
+}
+
 int main() {
 	const UnitTest tests[] = {
 		unit_test(test_processes_headers),
@@ -188,6 +215,7 @@ int main() {
 		unit_test(test_help),
 		unit_test(test_invalid_param),
 		unit_test(test_no_params),
+		unit_test(test_stat_fail),
 	};
 	return run_tests(tests, "run");
 }

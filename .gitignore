@@ -38,6 +38,7 @@
 # Project-specific executables
 Ness1/bin/*
 Ness1/zip/*
+Ness1/gcov/*
 Ness1/*.xml
 
 # Debug files
