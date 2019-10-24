@@ -52,7 +52,8 @@ void test_no_file() {
 	char str[255];
 	read(ch.fd[0], str, 255);
 
-	assert_string_equal(str, "Invalid parameter count! usage is: schedule <filename>\n");
+	str[33] = '\0';
+	assert_string_equal(str, "Invalid parameter count! usage is");
 	
 	close(ch.fd[0]);
 }
