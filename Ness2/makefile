@@ -7,8 +7,8 @@ ChildSrcDir = native/src/child
 TestSrcDir = native/test
 
 RootObjDir = obj
-MainObjDir = $(RootObjDir)/main
-ChildObjDir = $(RootObjDir)/child
+MainObjDir = $(RootObjDir)
+ChildObjDir = $(RootObjDir)
 TestObjDir = $(RootObjDir)/test
 
 BinDir=bin
@@ -39,7 +39,7 @@ child: $(ChildObjs)
 
 test: $(TestObjs)
 	@mkdir $(GcovDir) -p
-	@make build BinDir=$(GcovDir) MainObjDir=$(GcovDir)/main ChildObjDir=$(GcovDir)/child CFlags=--coverage LFlags=-fprofile-generate
+	@make build BinDir=$(GcovDir) MainObjDir=$(GcovDir) ChildObjDir=$(GcovDir) CFlags=--coverage LFlags=-fprofile-generate
 	@$(CC) $(TestObjs) -o $(LFlags) $(GcovDir)/$(TEST)
 	@echo "Linking "$(TEST)" complete"
 
