@@ -41,6 +41,8 @@ test: $(TestObjs)
 	@mkdir $(GcovDir) -p
 	@make build BinDir=$(GcovDir) MainObjDir=$(GcovDir) ChildObjDir=$(GcovDir) CFlags=--coverage LFlags=-fprofile-generate
 	@$(CC) $(TestObjs) -o $(LFlags) $(GcovDir)/$(TEST)
+	@cp $(MainSrcDir)/* $(GcovDir)
+	@cp $(ChildSrcDir)/* $(GcovDir)
 	@echo "Linking "$(TEST)" complete"
 
 $(MainObjs): $(MainObjDir)/%.o : $(MainSrcDir)/%.c
