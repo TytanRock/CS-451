@@ -96,6 +96,24 @@ void test_bad_file() {
 	read(ch.fd[0], str, 255);
 	str[24] = '\0';
 	assert_string_equal(str, "File format is incorrect");
+	
+	close(ch.fd[0]);
+}
+
+void test_good_file() {
+	childs ch = create_fork();
+	assert(ch.OK);
+
+	if(ch.pid == 0) {
+		char * args[] = {"./gcov/schedule", "test.txt", NULL};
+		execv(args[0], args);
+		exit(1);
+	}
+	int ret;
+	waitpid(ch.pid, &ret, 0);
+	assert_int_equal(ret, 0);
+
+	close(ch.fd[0]);
 }
 
 int main(int argc, char **argv) {
@@ -103,6 +121,7 @@ int main(int argc, char **argv) {
 		unit_test(test_no_param),
 		unit_test(test_no_file),
 		unit_test(test_bad_file),
+		unit_test(test_good_file),
 	};
 	return run_tests(tests, "run");
 }
