@@ -30,8 +30,9 @@ void test_run_process() {
 		dup2(fg[1], STDOUT_FILENO);
 		close(fg[1]);
 		close(fg[0]);
-		int ret = system("./gcov/5ps -p 1");
-		exit(ret);
+		char *args[] = {"./gcov/5ps", "-p", "1", NULL};
+		execv("./gcov/5ps", args);
+		exit(1);
 	}
 	close(fg[1]);
 	int ret;
@@ -69,14 +70,15 @@ void test_invalid_pid() {
 		close(fg[0]);
 		dup2(fg[1], STDERR_FILENO);
 		close(fg[1]);
-		int ret = system("./gcov/5ps -p -1");
-		fflush(stderr);
-		exit(-1);
+		char *args[] = {"./gcov/5ps", "-p", "-1", NULL};
+		execv("./gcov/5ps", args);
+		exit(1);
 	}
 	close(fg[1]);
 	int ret;
 	waitpid(pid, &ret, 0);
 	assert_int_not_equal(ret, 0);
+	assert_int_not_equal(ret, 1);
 
 	char str[255];
 	read(fg[0], str, 255);
@@ -97,8 +99,9 @@ void test_all_parameters() {
 		dup2(fg[1], STDOUT_FILENO);
 		close(fg[1]);
 		close(fg[0]);
-		int ret = system("./gcov/5ps -stvcp 1");
-		exit(ret);
+		char *args[] = {"./gcov/5ps", "-stvcp", "1", NULL};
+		execv("./gcov/5ps", args);
+		exit(1);
 	}
 	close(fg[1]);
 	int ret;
@@ -119,9 +122,9 @@ void test_help() {
 		dup2(fg[1], STDERR_FILENO);
 		dup2(fg[1], STDOUT_FILENO);
 		close(fg[1]);
-		int ret = system("./gcov/5ps -h -p -1");
-		fflush(stderr);
-		exit(ret);
+		char *args[] = {"./gcov/5ps", "-h", NULL};
+		execv("./gcov/5ps", args);
+		exit(1);
 	}
 	close(fg[1]);
 	int ret;
@@ -143,14 +146,15 @@ void test_invalid_param() {
 		dup2(fg[1], STDERR_FILENO);
 		dup2(fg[1], STDOUT_FILENO);
 		close(fg[1]);
-		int ret = system("./gcov/5ps -y");
-		fflush(stderr);
-		exit(-1);
+		char *args[] = {"./gcov/5ps", "-p", "d", NULL};
+		execv("./gcov/5ps", args);
+		exit(1);
 	}
 	close(fg[1]);
 	int ret;
 	waitpid(pid, &ret, 0);
 	assert_int_not_equal(ret, 0);
+	assert_int_not_equal(ret, 1);
 
 	close(fg[0]);
 }
@@ -167,9 +171,9 @@ void test_no_params() {
 		dup2(fg[1], STDERR_FILENO);
 		dup2(fg[1], STDOUT_FILENO);
 		close(fg[1]);
-		int ret = system("./gcov/5ps");
-		fflush(stderr);
-		exit(ret);
+		char *args[] = {"./gcov/5ps", NULL};
+		execv("./gcov/5ps", args);
+		exit(1);
 	}
 	close(fg[1]);
 	int ret;
