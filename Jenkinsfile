@@ -32,7 +32,10 @@ pipeline {
 					sh './gcov/5ps_test'
 				}
 				dir('Ness2') {
-					
+					sh 'make test'
+					dir('gcov') {
+						sh './schedule_test'
+					}
 				}
 			}
 		}
@@ -45,6 +48,10 @@ pipeline {
 						sh 'gcovr -r . --html --html-details -o rep.html'
 					}
 				}
+				dir('Ness2/gcov') {
+					sh 'gcovr -r . --xml -o rep.xml'
+					sh 'gcovr -r . --html --html-details -o rep.html'
+				}
 			}
 		}
 	}
@@ -52,8 +59,10 @@ pipeline {
 	post {
 		always {
 			junit 'Ness1/*.xml'
+			junit 'Ness2/gcov/run_xunit.xml'
 			cobertura coberturaReportFile: 'Ness1/gcov/*.xml'
-			publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'Ness1/gcov', reportFiles: 'rep.html', reportName: 'HTML Report', reportTitles: ''])
+			cobertura coberturaReportFile: 'Ness2/gcov/rep.xml
+			publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'Ness2/gcov', reportFiles: 'rep.html', reportName: 'HTML Report', reportTitles: ''])
 		}
 	}
 }
