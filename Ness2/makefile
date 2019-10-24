@@ -27,9 +27,6 @@ MainObjs := $(MainSources:$(MainSrcDir)%.c=$(MainObjDir)%.o)
 ChildObjs := $(ChildSources:$(ChildSrcDir)%.c=$(ChildObjDir)%.o)
 TestObjs := $(TestSources:$(TestSrcDir)%.c=$(TestObjDir)%.o)
 
-a:
-	@echo $(ChildSources)
-
 build: $(MainObjs) child
 	@mkdir $(BinDir) -p
 	@$(CC) $(MainObjs) -o $(BinDir)/$(TARGET) $(LFlags)
@@ -66,5 +63,5 @@ clean:
 	@rm -rf $(RootObjDir)
 	@rm -rf $(BinDir)
 	@rm -rf $(GcovDir)
-
+	@rm -f *.xml
 

@@ -13,13 +13,16 @@
 typedef struct _childs {
 	int fd[2];
 	int pid;
+	int OK;
 } childs;
 
 childs create_fork() {
 	childs ret;
 	if(pipe(ret.fd) < 0) {
+		ret.OK = 0;
 		return ret;
 	}
+	ret.OK = 1;
 	ret.pid = fork();
 	if(ret.pid == 0) {
 		close(ret.fd[0]);
@@ -34,6 +37,7 @@ childs create_fork() {
 
 void test_no_file() {
 	childs ch = create_fork();
+	assert(ch.OK);
 
 	if(ch.pid == 0) {
 		char * args[] = {"./gcov/schedule", NULL };
@@ -49,7 +53,8 @@ void test_no_file() {
 	read(ch.fd[0], str, 255);
 
 	assert_string_equal(str, "Invalid parameter count! usage is: schedule <filename>\n");
-
+	
+	close(ch.fd[0]);
 }
 
 int main(int argc, char **argv) {
