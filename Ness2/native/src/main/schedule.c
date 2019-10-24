@@ -43,5 +43,5 @@ int main(int argc, char **argv) {
 	
 	/* We have to free memory allocated by parse_file */
 	free(_module.table);
-	return 0;
+	return err;
 }

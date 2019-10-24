@@ -35,7 +35,7 @@ childs create_fork() {
 	return ret;
 }
 
-void test_no_file() {
+void test_no_param() {
 	childs ch = create_fork();
 	assert(ch.OK);
 
@@ -46,8 +46,7 @@ void test_no_file() {
 	}
 	int ret;
 	waitpid(ch.pid, &ret, 0);
-	assert_int_not_equal(ret, 0);
-	assert_int_not_equal(ret, 1);
+	assert(ret != 0 && ret != 1);
 
 	char str[255];
 	read(ch.fd[0], str, 255);
@@ -58,9 +57,52 @@ void test_no_file() {
 	close(ch.fd[0]);
 }
 
+void test_no_file() {
+	childs ch = create_fork();
+	assert(ch.OK);
+
+	if(ch.pid == 0) {
+		char * args[] = {"./gcov/schedule", "thisfiledoesntexist.txx", NULL};
+		execv(args[0], args);
+		exit(1);
+	}
+	int ret;
+	waitpid(ch.pid, &ret, 0);
+	assert(ret != 0 && ret != 1);
+
+	char str[255];
+	read(ch.fd[0], str, 255);
+	str[14] = '\0';
+	assert_string_equal(str, "File not found");
+	
+	close(ch.fd[0]);
+}
+
+void test_bad_file() {
+	childs ch = create_fork();
+	assert(ch.OK);
+
+	if(ch.pid == 0) {
+		char * args[] = {"./gcov/schedule", "makefile", NULL};
+		execv(args[0], args);
+		exit(1);
+	}
+	int ret;
+	waitpid(ch.pid, &ret, 0);
+	assert(ret != 0 && ret != 1);
+
+
+	char str[255];
+	read(ch.fd[0], str, 255);
+	str[24] = '\0';
+	assert_string_equal(str, "File format is incorrect");
+}
+
 int main(int argc, char **argv) {
 	const UnitTest tests[] = {
+		unit_test(test_no_param),
 		unit_test(test_no_file),
+		unit_test(test_bad_file),
 	};
 	return run_tests(tests, "run");
 }
