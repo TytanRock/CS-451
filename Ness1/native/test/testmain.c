@@ -146,7 +146,7 @@ void test_invalid_param() {
 		dup2(fg[1], STDERR_FILENO);
 		dup2(fg[1], STDOUT_FILENO);
 		close(fg[1]);
-		char *args[] = {"./gcov/5ps", "-z", "d", NULL};
+		char *args[] = {"./gcov/5ps", "-zp", "d", NULL};
 		execv("./gcov/5ps", args);
 		exit(1);
 	}
