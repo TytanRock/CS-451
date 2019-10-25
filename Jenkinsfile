@@ -58,7 +58,6 @@ pipeline {
 		always {
 			junit 'Ness1/run_xunit.xml'
 			junit 'Ness2/run_xunit.xml'
-			cobertura coberturaReportFile: 'Ness1/gcov/*.xml'
 			cobertura coberturaReportFile: 'Ness2/gcov/rep.xml'
 			publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'Ness2/gcov', reportFiles: 'rep.html', reportName: 'HTML Report', reportTitles: ''])
 		}
