@@ -56,6 +56,7 @@ ERR_CODE start_schedule(process_table * table, int entry_count) {
 		}
 		/* This is parent process */
 		_module.entries[i].pid = pid;
+		_module.entries[i].started = 1;
 
 		/* Configure pipes */
 		close(_module.entries[i].pipe[1]);
