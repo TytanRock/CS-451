@@ -2,9 +2,11 @@
 #include <stdio.h>
 #include "../../include/fileparser.h"
 
-ERR_CODE parse_file(char * filename, process_table ** table) {
+ERR_CODE parse_file(char * filename, process_table ** table, int *entry_count) {
 	/* Read file and begin parsing */
 	FILE * file = fopen(filename, "r");
+	/* initialize entry_count */
+	*entry_count = 0;
 	
 	/* Check file is valid */
 	if(file == NULL) {
@@ -39,10 +41,13 @@ ERR_CODE parse_file(char * filename, process_table ** table) {
 		if(matches != 4 && matches != -1) {
 			return INVALID_FILE_FORMAT;
 		}
-		(*table)[i].process_number = proc_num;
-		(*table)[i].arrival_time = arr_time;
-		(*table)[i].burst = brst;
-		(*table)[i].priority = priority;
+		if(matches == 4) {
+			++(*entry_count);
+			(*table)[i].process_number = proc_num;
+			(*table)[i].arrival_time = arr_time;
+			(*table)[i].burst = brst;
+			(*table)[i].priority = priority;
+		}
 	}
 	return OK;
 }

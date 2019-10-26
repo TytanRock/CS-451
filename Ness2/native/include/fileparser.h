@@ -10,7 +10,7 @@ typedef struct _process_table {
 	int priority;
 } process_table;
 
-ERR_CODE parse_file(char * filename, process_table ** table);
+ERR_CODE parse_file(char * filename, process_table ** table, int * entry_count);
 
 
 #endif //_FILEPARSER_H_

@@ -7,6 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <signal.h>
 #include <sys/wait.h>
 #include "cmockery/cmockery.h"
 
@@ -46,6 +47,7 @@ void test_no_param() {
 	}
 	int ret;
 	waitpid(ch.pid, &ret, 0);
+	ret = WEXITSTATUS(ret);
 	assert(ret != 0 && ret != 1);
 
 	char str[255];
@@ -68,6 +70,7 @@ void test_no_file() {
 	}
 	int ret;
 	waitpid(ch.pid, &ret, 0);
+	ret = WEXITSTATUS(ret);
 	assert(ret != 0 && ret != 1);
 
 	char str[255];
@@ -89,6 +92,7 @@ void test_bad_file() {
 	}
 	int ret;
 	waitpid(ch.pid, &ret, 0);
+	ret = WEXITSTATUS(ret);
 	assert(ret != 0 && ret != 1);
 
 
@@ -110,8 +114,9 @@ void test_good_file() {
 		exit(1);
 	}
 	int ret;
+	kill(ch.pid, SIGINT);
 	waitpid(ch.pid, &ret, 0);
-	assert_int_equal(ret, 0);
+	assert_int_equal(WEXITSTATUS(ret), 0);
 
 	close(ch.fd[0]);
 }
