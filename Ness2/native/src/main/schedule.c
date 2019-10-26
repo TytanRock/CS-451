@@ -18,6 +18,8 @@ void handle_sigint(int sig) {
 	_module.keep_alive = 0;
 }
 
+int is_alive() { return _module.keep_alive; }
+
 void init_module() {
 	signal(SIGINT, handle_sigint);
 }
@@ -44,7 +46,7 @@ int main(int argc, char **argv) {
 	/* Wait until SIGINT is called */
 	if(err == OK) {
 		_module.keep_alive = 1;
-		while(_module.keep_alive) ;
+		while(is_alive()) ;
 		/* SIGINT is called, let's stop processes */
 		stop_processor();
 		printf("stopped\n");
@@ -54,15 +56,15 @@ int main(int argc, char **argv) {
 	switch(err) {
 		case OK: break; // !<Everything OK
 		case INVALID_FILE:
-			 fprintf(stderr, "File not found\n");
-			 break;
+			fprintf(stderr, "File not found\n");
+			break;
 		case INVALID_FILE_FORMAT:
-			 fprintf(stderr, "File format is incorrect\n");
-			 break;
+			fprintf(stderr, "File format is incorrect\n");
+			break;
 		
 		default:
-			 fprintf(stderr, "General error: %d\n", err);
-			 break;
+			fprintf(stderr, "General error: %d\n", err);
+			break;
 	}
 
 	/* We have to free memory that's dynamically allocated */
