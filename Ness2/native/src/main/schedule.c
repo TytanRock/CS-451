@@ -18,8 +18,6 @@ void handle_sigint(int sig) {
 	_module.keep_alive = 0;
 }
 
-int is_alive() { return _module.keep_alive; }
-
 void init_module() {
 	signal(SIGINT, handle_sigint);
 }
@@ -46,7 +44,7 @@ int main(int argc, char **argv) {
 	/* Wait until SIGINT is called */
 	if(err == OK) {
 		_module.keep_alive = 1;
-		while(is_alive()) ;
+		while(_module.keep_alive) ;
 		/* SIGINT is called, let's stop processes */
 		stop_processor();
 		printf("stopped\n");

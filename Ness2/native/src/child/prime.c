@@ -14,11 +14,11 @@ void handle_sigint(int signal) {
 	/* Set flag to close */
 	_module.closed = 1;
 }
-void handle_usr1(int signal) {
+void handle_sigtstp(int signal) {
 	/* Pause execution for a bit */
 	_module.active = 0;
 }
-void handle_usr2(int signal) {
+void handle_sigcont(int signal) {
 	/* Resume execution */
 	_module.active = 1;
 }
@@ -45,8 +45,8 @@ void initialize() {
 	_module.current_num = 1234567890;
 	_module.active = 1;
 	signal(SIGINT, handle_sigint);
-	signal(SIGUSR1, handle_usr1);
-	signal(SIGUSR2, handle_usr2);
+	signal(SIGTSTP, handle_sigtstp);
+	signal(SIGCONT, handle_sigcont);
 }
 
 int main(int argc, char ** argv) {
