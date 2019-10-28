@@ -114,7 +114,10 @@ void test_good_file() {
 		exit(1);
 	}
 	int ret;
+	sleep(1);
 	kill(ch.pid, SIGINT);
+	sleep(1);
+	kill(ch.pid, SIGKILL);
 	waitpid(ch.pid, &ret, 0);
 	ret = WEXITSTATUS(ret);
 	assert_int_equal(ret, 0);
