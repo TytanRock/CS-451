@@ -133,7 +133,7 @@ void test_prime() {
 		exit(1);
 	}
 	int ret;
-	sleep(1);
+	sleep(20); //!< Have to wait for a while to find a prime
 	kill(ch.pid, SIGINT);
 	waitpid(ch.pid, &ret, 0);
 	ret = WEXITSTATUS(ret);
