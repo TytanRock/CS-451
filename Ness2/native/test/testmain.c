@@ -123,12 +123,33 @@ void test_good_file() {
 	close(ch.fd[0]);
 }
 
+void test_prime() {
+	childs ch = create_fork();
+	assert(ch.OK);
+
+	if(ch.pid == 0) {
+		char * args[] = {"./gcov/prime", NULL};
+		execv(args[0], args);
+		exit(1);
+	}
+	int ret;
+	sleep(1);
+	kill(ch.pid, SIGINT);
+	waitpid(ch.pid, &ret, 0);
+	ret = WEXITSTATUS(ret);
+	assert_int_equal(ret, 0);
+
+	close(ch.fd[0]);
+
+}
+
 int main(int argc, char **argv) {
 	const UnitTest tests[] = {
 		unit_test(test_no_param),
 		unit_test(test_no_file),
 		unit_test(test_bad_file),
 		unit_test(test_good_file),
+		unit_test(test_prime),
 	};
 	return run_tests(tests, "run");
 }
