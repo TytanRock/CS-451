@@ -13,6 +13,9 @@ typedef struct _schedule_entry {
 
 	/* flag to determine if the process started */
 	unsigned started : 1;
+	unsigned ended : 1;
+
+	unsigned int time_used;
 
 	/* process_table reference */
 	process_table * table;
@@ -24,13 +27,16 @@ static struct {
 
 	int timer_count;
 
+	schedule_entry * current_entry;
+	schedule_entry * last_entry;
+
 	unsigned allocated_memory : 1;
+	unsigned timer_dirty : 1;
 } _module;
 
 void handle_timer(int signal) {
-	if(_module.timer_count) {
-		++_module.timer_count;
-	}
+	++_module.timer_count;
+	_module.timer_dirty = 1;
 }
 
 ERR_CODE sort_entries() {
@@ -65,34 +71,6 @@ ERR_CODE start_schedule(process_table * table, int entry_count) {
 	/* start all the child processes */
 	for(int i = 0; i < entry_count; ++i) {
 		_module.entries[i].table = &(table[i]);
-		/* Make sure pipe doesn't fail */
-		if(pipe(_module.entries[i].pipe) < 0) {
-			return PIPE_FAILURE;
-		}
-		int pid = fork();
-		
-		/* Make sure fork doesn't fail */
-		if(pid < 0) {
-			return FORK_FAILURE;
-		}
-		/* Check to see if we're child */
-		if(pid == 0) {
-			/* Set up STDOUT */
-			close(_module.entries[i].pipe[0]);
-			dup2(_module.entries[i].pipe[1], STDOUT_FILENO);
-			close(_module.entries[i].pipe[1]);
-
-			/* Start with execv */
-			char *args[] = {"./prime", NULL};
-			execv(args[0], args);
-			exit(-1); // Exit with failure if we make it this far
-		}
-		/* This is parent process */
-		_module.entries[i].pid = pid;
-		_module.entries[i].started = 1;
-
-		/* Configure pipes */
-		close(_module.entries[i].pipe[1]);
 	}
 	/* Sort the entries now to ensure highest priority is highest */
 	sort_entries();
@@ -103,13 +81,110 @@ ERR_CODE start_schedule(process_table * table, int entry_count) {
 	return OK; // We're good
 }
 
+ERR_CODE start_entry(schedule_entry * entry) {
+	/* Make sure pipe doesn't fail */
+	if(pipe(entry->pipe) < 0) {
+		return PIPE_FAILURE;
+	}
+	int pid = fork();
+	
+	/* Make sure fork doesn't fail */
+	if(pid < 0) {
+		return FORK_FAILURE;
+	}
+	/* Check to see if we're child */
+	if(pid == 0) {
+		/* Set up STDOUT */
+		close(entry->pipe[0]);
+		dup2(entry->pipe[1], STDOUT_FILENO);
+		close(entry->pipe[1]);
+
+		/* Start with execv */
+		char *args[] = {"./bin/prime", NULL};
+		execv(args[0], args);
+		exit(-1); // Exit with failure if we make it this far
+	}
+	/* This is parent process */
+	entry->pid = pid;
+	entry->started = 1;
+
+	/* Configure pipes */
+	close(entry->pipe[1]);
+	
+	return OK;
+}
+
+ERR_CODE run_schedule() {
+	/* If the dirty flag is set, we need to process this time */
+	if(_module.timer_dirty) {
+		/* Look at current entry and stop if burst is up */
+		if(_module.current_entry != NULL &&
+		 _module.current_entry->time_used >= _module.current_entry->table->burst) {
+			kill(_module.current_entry->pid, SIGINT);
+			waitpid(_module.current_entry->pid, NULL, 0);
+			char primes[20];
+			read(_module.current_entry->pipe[0], primes, 20);
+			printf("Process %d closed: Prime found was %s\n", _module.current_entry->pid, primes);
+			_module.current_entry->ended = 1;
+			_module.current_entry = NULL;
+		}
+		/* Now look for the highest priority entry that arrived soonest and execute it */
+		_module.last_entry = _module.current_entry;
+		for(int i = 0; i < _module.entry_count; ++i) {
+			/* This checks if the entry hasn't ended yet, and if it's "arrived" yet */
+			if(!_module.entries[i].ended && _module.entries[i].table->arrival_time <= _module.timer_count) {
+				if(_module.current_entry == NULL) _module.current_entry = &(_module.entries[i]);
+				if(_module.current_entry->table->priority > _module.entries[i].table->priority) 
+					_module.current_entry = &(_module.entries[i]);
+			}
+		}
+		/* If we updated the current entry, we have to stop the last one and start the new one */
+		if(_module.last_entry != _module.current_entry) {
+			if(_module.last_entry != NULL) {
+				kill(_module.last_entry->pid, SIGTSTP);
+				printf("PID %d stopped: ID %d, time used %d\n", 
+						_module.last_entry->pid, 
+						_module.last_entry->table->process_number, 
+						_module.last_entry->time_used);
+			}
+			if(_module.current_entry->started) {
+				kill(_module.current_entry->pid, SIGCONT);
+				printf("PID %d continued: ID %d, priority %d, burst %d, time used %d\n", 
+						_module.current_entry->pid,
+						_module.current_entry->table->process_number,
+						_module.current_entry->table->priority,
+						_module.current_entry->table->burst,
+						_module.current_entry->time_used);
+			} else {
+				start_entry(_module.current_entry);
+				printf("PID %d started: ID %d, priority %d, burst %d\n", 
+						_module.current_entry->pid,
+						_module.current_entry->table->process_number,
+						_module.current_entry->table->priority,
+						_module.current_entry->table->burst);
+			}
+		}
+		_module.timer_dirty = 0;
+		if(_module.current_entry != NULL) ++_module.current_entry->time_used;
+	}
+
+	/* Check every entry to see if there's any that haven't ended yet */
+	int all_ended = 1;
+	for(int i = 0; i < _module.entry_count; ++i) {
+		if(!_module.entries[i].ended) all_ended = 0;
+	}
+	if(all_ended) return ALL_ENDED;
+	return OK;
+}
+
+
 ERR_CODE stop_processor() {
 	/* If we've allocated memory, we have processes running, so let's stop them */
 	if(_module.allocated_memory) {
 		/* Stop all children */
 		for(int i = 0; i < _module.entry_count; ++i) {
 			/* If this process is running, stop it */
-			if(_module.entries[i].started) {
+			if(_module.entries[i].started && !_module.entries[i].ended) {
 				kill(_module.entries[i].pid, SIGINT);
 				waitpid(_module.entries[i].pid, NULL, 0);
 			}

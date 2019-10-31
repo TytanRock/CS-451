@@ -7,6 +7,8 @@ typedef enum _ERR_CODE {
 	INVALID_FILE_FORMAT = -2,
 	PIPE_FAILURE = -3,
 	FORK_FAILURE = -4,
+	
+	ALL_ENDED = 1,
 
 	GENERAL_FAILURE = -100,
 } ERR_CODE;

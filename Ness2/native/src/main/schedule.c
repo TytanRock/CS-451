@@ -45,10 +45,12 @@ int main(int argc, char **argv) {
 	/* Wait until SIGINT is called */
 	if(err == OK) {
 		_module.keep_alive = 1;
-		while(_module.keep_alive) ;
+		while(_module.keep_alive) {
+			ERR_CODE ret = run_schedule();
+			if(ret == ALL_ENDED) break;
+		}
 		/* SIGINT is called, let's stop processes */
 		stop_processor();
-		printf("stopped\n");
 	}
 
 	/* Print errors if there are errors */

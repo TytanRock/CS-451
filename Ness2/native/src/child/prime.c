@@ -16,6 +16,8 @@ void handle_sigint(int signal) {
 }
 void handle_sigtstp(int signal) {
 	/* Pause execution for a bit */
+	printf("%lu", _module.last_prime);
+	fflush(stdout);
 	_module.active = 0;
 }
 void handle_sigcont(int signal) {
@@ -57,8 +59,11 @@ int main(int argc, char ** argv) {
 		if(_module.active) {
 			find_next_prime();
 		}
-		printf("Prime is: %lu\n", _module.last_prime);
+		//printf("Prime is: %lu\n", _module.last_prime);
 	}
+
+	printf("%lu", _module.last_prime);
+	fflush(stdout);
 
 	return 0;
 }

@@ -5,6 +5,7 @@
 #include "fileparser.h"
 
 ERR_CODE start_schedule(process_table *table, int entry_count);
+ERR_CODE run_schedule();
 ERR_CODE stop_processor();
 ERR_CODE free_processor();
 
