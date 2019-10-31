@@ -124,7 +124,7 @@ ERR_CODE run_schedule() {
 			waitpid(_module.current_entry->pid, NULL, 0);
 			char primes[20];
 			read(_module.current_entry->pipe[0], primes, 20);
-			printf("Process %d closed: Prime found was %s\n", _module.current_entry->pid, primes);
+			printf("Process %d closed: Prime found was %s\n", _module.current_entry->table->process_number, primes);
 			_module.current_entry->ended = 1;
 			_module.current_entry = NULL;
 		}
@@ -142,24 +142,27 @@ ERR_CODE run_schedule() {
 		if(_module.last_entry != _module.current_entry) {
 			if(_module.last_entry != NULL) {
 				kill(_module.last_entry->pid, SIGTSTP);
-				printf("PID %d stopped: ID %d, time used %d\n", 
-						_module.last_entry->pid, 
+				char primes[20];
+				read(_module.last_entry->pipe[0], primes, 20);
+				printf("Process %2d stopped:   PID %6d, time used %3d, current prime is %5s\n", 
 						_module.last_entry->table->process_number, 
-						_module.last_entry->time_used);
+						_module.last_entry->pid,
+						_module.last_entry->time_used,
+						primes);
 			}
 			if(_module.current_entry->started) {
 				kill(_module.current_entry->pid, SIGCONT);
-				printf("PID %d continued: ID %d, priority %d, burst %d, time used %d\n", 
-						_module.current_entry->pid,
+				printf("Process %2d continued: PID %6d, time used %3d, priority %d, burst %d\n", 
 						_module.current_entry->table->process_number,
+						_module.current_entry->pid,
+						_module.current_entry->time_used,
 						_module.current_entry->table->priority,
-						_module.current_entry->table->burst,
-						_module.current_entry->time_used);
+						_module.current_entry->table->burst);
 			} else {
 				start_entry(_module.current_entry);
-				printf("PID %d started: ID %d, priority %d, burst %d\n", 
-						_module.current_entry->pid,
+				printf("Process %2d started:   PID %6d,                priority %d, burst %d\n", 
 						_module.current_entry->table->process_number,
+						_module.current_entry->pid,
 						_module.current_entry->table->priority,
 						_module.current_entry->table->burst);
 			}

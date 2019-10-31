@@ -26,7 +26,7 @@ void handle_sigcont(int signal) {
 }
 
 int check_next_num() {
-	for(int i = 2; i < _module.current_num; ++i) {
+	for(int i = 2; i < _module.current_num / 2; ++i) {
 		if(_module.current_num % i == 0) return 0;
 		if(_module.closed) return 0;
 	}
@@ -44,7 +44,7 @@ void find_next_prime() {
 }
 
 void initialize() {
-	_module.current_num = 1234567890;
+	_module.current_num = 1111111111;
 	_module.active = 1;
 	signal(SIGINT, handle_sigint);
 	signal(SIGTSTP, handle_sigtstp);
