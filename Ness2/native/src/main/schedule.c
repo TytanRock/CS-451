@@ -7,15 +7,16 @@
 
 #define USAGE "schedule <filename>"
 
-struct {
+static struct {
 	process_table * table;
 	int table_entries;
 
-	volatile unsigned keep_alive : 1;
+	unsigned keep_alive : 1;
 } _module;
 
 void handle_sigint(int sig) {
 	_module.keep_alive = 0;
+	printf("Closing...\n");
 }
 
 void init_module() {

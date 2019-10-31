@@ -15,7 +15,7 @@ BinDir=bin
 GcovDir=gcov
 
 CC=gcc
-CFlags = -Wall -Werror
+CFlags = -Wall
 LFlags =
 
 
