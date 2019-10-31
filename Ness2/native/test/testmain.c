@@ -133,8 +133,12 @@ void test_prime() {
 		exit(1);
 	}
 	int ret;
-	sleep(20); //!< Have to wait for a while to find a prime
-	kill(ch.pid, SIGINT);
+	sleep(10); //!< Have to wait for a while to find a prime
+	kill(ch.pid, SIGTSTP);
+	sleep(1); // Wait a bit
+	kill(ch.pid, SIGCONT);
+	sleep(10); //!< Wait the remainder
+	kill(ch.pid, SIGINT); //!< Stop the process
 	waitpid(ch.pid, &ret, 0);
 	ret = WEXITSTATUS(ret);
 	assert_int_equal(ret, 0);
