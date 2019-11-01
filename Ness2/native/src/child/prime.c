@@ -44,7 +44,7 @@ void find_next_prime() {
 }
 
 void initialize() {
-	_module.current_num = 1111111111;
+	_module.current_num = 1;
 	_module.active = 1;
 	signal(SIGINT, handle_sigint);
 	signal(SIGTSTP, handle_sigtstp);

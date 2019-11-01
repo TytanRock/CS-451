@@ -74,10 +74,6 @@ ERR_CODE start_schedule(process_table * table, int entry_count) {
 	}
 	/* Sort the entries now to ensure highest priority is highest */
 	sort_entries();
-	/* print to ensure we're sorted */
-	for(int i = 0; i < _module.entry_count; ++i) {
-		printf("ID: %d\tPriority: %d\tArr_time:%d\n", _module.entries[i].table->process_number, _module.entries[i].table->priority, _module.entries[i].table->arrival_time);
-	}
 	return OK; // We're good
 }
 
@@ -123,8 +119,9 @@ ERR_CODE run_schedule() {
 			kill(_module.current_entry->pid, SIGINT);
 			waitpid(_module.current_entry->pid, NULL, 0);
 			char primes[20];
+			memset(primes, 0, 20);
 			read(_module.current_entry->pipe[0], primes, 20);
-			printf("Process %d closed: Prime found was %s\n", _module.current_entry->table->process_number, primes);
+			printf("Process %2d closed: Prime found was %s\n", _module.current_entry->table->process_number, primes);
 			_module.current_entry->ended = 1;
 			_module.current_entry = NULL;
 		}
@@ -143,6 +140,7 @@ ERR_CODE run_schedule() {
 			if(_module.last_entry != NULL) {
 				kill(_module.last_entry->pid, SIGTSTP);
 				char primes[20];
+				memset(primes, 0, 20);
 				read(_module.last_entry->pipe[0], primes, 20);
 				printf("Process %2d stopped:   PID %6d, time used %3d, current prime is %5s\n", 
 						_module.last_entry->table->process_number, 
