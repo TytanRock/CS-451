@@ -74,6 +74,9 @@ ERR_CODE start_schedule(process_table * table, int entry_count) {
 	}
 	/* Sort the entries now to ensure highest priority is highest */
 	sort_entries();
+
+	/* Print header */
+	printf("Time    State     PID   ID  Priority  Number\n");
 	return OK; // We're good
 }
 
@@ -113,16 +116,21 @@ ERR_CODE start_entry(schedule_entry * entry) {
 ERR_CODE run_schedule() {
 	/* If the dirty flag is set, we need to process this time */
 	if(_module.timer_dirty) {
+		/* Flags that determine if we need to print something */
+		int process_stopped = 0;
+		int process_started = 0;
+		int process_halted = 0;
+		int process_resumed = 0;
+		schedule_entry * stopped_entry;
+
 		/* Look at current entry and stop if burst is up */
 		if(_module.current_entry != NULL &&
 		 _module.current_entry->time_used >= _module.current_entry->table->burst) {
 			kill(_module.current_entry->pid, SIGINT);
 			waitpid(_module.current_entry->pid, NULL, 0);
-			char primes[20];
-			memset(primes, 0, 20);
-			read(_module.current_entry->pipe[0], primes, 20);
-			printf("Process %2d closed: Prime found was %s\n", _module.current_entry->table->process_number, primes);
 			_module.current_entry->ended = 1;
+			stopped_entry = _module.current_entry;
+			process_stopped = 1;
 			_module.current_entry = NULL;
 		}
 		/* Now look for the highest priority entry that arrived soonest and execute it */
@@ -139,32 +147,67 @@ ERR_CODE run_schedule() {
 		if(_module.last_entry != _module.current_entry) {
 			if(_module.last_entry != NULL) {
 				kill(_module.last_entry->pid, SIGTSTP);
-				char primes[20];
-				memset(primes, 0, 20);
-				read(_module.last_entry->pipe[0], primes, 20);
-				printf("Process %2d stopped:   PID %6d, time used %3d, current prime is %5s\n", 
-						_module.last_entry->table->process_number, 
-						_module.last_entry->pid,
-						_module.last_entry->time_used,
-						primes);
+				process_halted = 1;
 			}
 			if(_module.current_entry->started) {
 				kill(_module.current_entry->pid, SIGCONT);
-				printf("Process %2d continued: PID %6d, time used %3d, priority %d, burst %d\n", 
-						_module.current_entry->table->process_number,
-						_module.current_entry->pid,
-						_module.current_entry->time_used,
-						_module.current_entry->table->priority,
-						_module.current_entry->table->burst);
+				process_resumed = 1;
 			} else {
 				start_entry(_module.current_entry);
-				printf("Process %2d started:   PID %6d,                priority %d, burst %d\n", 
-						_module.current_entry->table->process_number,
-						_module.current_entry->pid,
-						_module.current_entry->table->priority,
-						_module.current_entry->table->burst);
+				process_started = 1;
 			}
 		}
+		/* Print state information now */
+		do {
+			/* Start with time */
+			printf("%-4d  ", _module.timer_count);
+			
+			if(process_stopped) {
+				char tmp[20];
+				memset(tmp, 0, 20);
+				read(stopped_entry->pipe[0], tmp, 20);
+				printf("  Ended  %6d  %2d  %9d  %-s\n", 
+						stopped_entry->pid, 
+						stopped_entry->table->process_number,
+						stopped_entry->table->priority,
+						tmp);
+				process_stopped = 0;
+				continue;
+			}
+			if(process_halted) {
+				char tmp[20];
+				memset(tmp, 0, 20);
+				read(_module.last_entry->pipe[0], tmp, 20);
+				printf("Suspend  %6d  %2d  %9d  %-s\n",
+						_module.last_entry->pid,
+						_module.last_entry->table->process_number,
+						_module.last_entry->table->priority,
+						tmp);
+				process_halted = 0;
+				continue;
+			}
+			if(process_started) {
+				printf("Started  %6d  %2d  %9d %-s\n",
+						_module.current_entry->pid,
+						_module.current_entry->table->process_number,
+						_module.current_entry->table->priority,
+						"");
+				process_started = 0;
+				continue;
+			}
+			if(process_resumed) {
+				printf("Resumed  %6d  %2d  %9d %-s\n",
+						_module.current_entry->pid,
+						_module.current_entry->table->process_number,
+						_module.current_entry->table->priority,
+						"");
+				process_resumed = 0;
+				continue;
+			}
+
+			printf("\n");
+		} while(process_stopped || process_started || process_halted || process_resumed);
+
 		_module.timer_dirty = 0;
 		if(_module.current_entry != NULL) ++_module.current_entry->time_used;
 	}
