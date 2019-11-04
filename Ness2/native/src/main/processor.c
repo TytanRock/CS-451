@@ -56,6 +56,10 @@ void handle_timer(int signal) {
 	_module.timer_dirty = 1;
 }
 
+int compare(const void * a, const void * b) {
+	return ((schedule_entry *)a)->table->arrival_time - 
+		((schedule_entry *)b)->table->arrival_time;
+}
 /**
  * sort_entries
  * Purpose: Sort entries by arrival time
@@ -67,16 +71,8 @@ ERR_CODE sort_entries() {
 	if(!_module.allocated_memory) {
 		return MEMORY_NOT_ALLOCATED;
 	}
-	/* Bubble sort temporarily */
-	for(int i = 0; i < _module.entry_count - 1; ++i) {
-		for(int j = i + 1; j < _module.entry_count; ++j) {
-			if(_module.entries[j].table->arrival_time < _module.entries[i].table->arrival_time) {
-				schedule_entry tmp = _module.entries[i];
-				_module.entries[i] = _module.entries[j];
-				_module.entries[j] = tmp;
-			}
-		}
-	}
+	qsort(_module.entries, _module.entry_count, sizeof(schedule_entry), compare);
+	for(int i = 0; i < _module.entry_count; ++i) printf("ID: %d\n", _module.entries[i].table->process_number);
 	return OK; //!< Successful sort
 }
 
