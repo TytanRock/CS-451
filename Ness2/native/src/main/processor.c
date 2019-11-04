@@ -72,7 +72,6 @@ ERR_CODE sort_entries() {
 		return MEMORY_NOT_ALLOCATED;
 	}
 	qsort(_module.entries, _module.entry_count, sizeof(schedule_entry), compare);
-	for(int i = 0; i < _module.entry_count; ++i) printf("ID: %d\n", _module.entries[i].table->process_number);
 	return OK; //!< Successful sort
 }
 
