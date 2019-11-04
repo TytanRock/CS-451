@@ -58,8 +58,8 @@ pipeline {
 		always {
 			junit 'Ness1/run_xunit.xml'
 			junit 'Ness2/run_xunit.xml'
-			publishCoverage adapters: [coberturaAdapter('Ness1/gcov/rep.xml'), tag: '1']
-			publishCoverage adapters: [coberturaAdapter('Ness2/gcov/rep.xml'), tag: '2']
+			publishCoverage adapters: [coberturaAdapter('Ness1/gcov/rep.xml')], tag: '1'
+			publishCoverage adapters: [coberturaAdapter('Ness2/gcov/rep.xml')], tag: '2'
 		}
 	}
 }
