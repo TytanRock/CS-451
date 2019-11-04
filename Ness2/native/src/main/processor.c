@@ -7,7 +7,7 @@
 #include "../../include/processor.h"
 
 /* String used for table header */
-#define HEADER_STRING "Time    State     PID   ID  Priority  Number\n"
+#define HEADER_STRING "Time    State     PID   ID  Priority  Number/Prime\n"
 /* String used for content of entry */
 #define CONTENT_STRING "%6d  %2d  %9d  %-s\n"
 /* Length of string to read from child */
@@ -175,7 +175,7 @@ ERR_CODE run_schedule() {
 		/* Look at current entry and stop if burst is up */
 		if(_module.current_entry != NULL &&
 		 _module.current_entry->time_used >= _module.current_entry->table->burst) {
-			kill(_module.current_entry->pid, SIGINT); //!< Send SIGINT signal
+			kill(_module.current_entry->pid, SIGTERM); //!< Send SIGTERM signal
 			waitpid(_module.current_entry->pid, NULL, 0); //!< Ensure process exits
 			_module.current_entry->ended = 1; //!< Set flag so entry is ended
 			stopped_entry = _module.current_entry; //!< Reference our local stopped entry to this
@@ -247,21 +247,27 @@ ERR_CODE run_schedule() {
 			}
 			/* If a process started, print started information */
 			if(process_started) {
+				char tmp[STR_LEN]; //!< Initialize temporary string
+				memset(tmp, 0, STR_LEN); //!< Clear our temporary string
+				read(_module.current_entry->pipe[0], tmp, STR_LEN); //!< Read child process output
 				printf("Started  " CONTENT_STRING,
 						_module.current_entry->pid,
 						_module.current_entry->table->process_number,
 						_module.current_entry->table->priority,
-						""); //!< Print out our content
+						tmp); //!< Print out our content
 				process_started = 0; //!< Clear flag
 				continue; //!< Important because we want a new entry for every flag
 			}
 			/* If a process resumed, print resumed information */
 			if(process_resumed) {
+				char tmp[STR_LEN]; //!< Initialize temporary string
+				memset(tmp, 0, STR_LEN); //!< Clear our temporary string
+				read(_module.current_entry->pipe[0], tmp, STR_LEN); //!< Read child process output
 				printf("Resumed  " CONTENT_STRING,
 						_module.current_entry->pid,
 						_module.current_entry->table->process_number,
 						_module.current_entry->table->priority,
-						""); //!< Print out our content
+						tmp); //!< Print out our content
 				process_resumed = 0; //!< Clear flag
 				continue; //!< Important because we want a new entry for every flag
 			}
@@ -299,7 +305,7 @@ ERR_CODE stop_processor() {
 		for(int i = 0; i < _module.entry_count; ++i) {
 			/* If this process hasn't ended, stop it */
 			if(_module.entries[i].started && !_module.entries[i].ended) {
-				kill(_module.entries[i].pid, SIGINT); //!< Send SIGINT signal
+				kill(_module.entries[i].pid, SIGTERM); //!< Send SIGTERM signal
 				waitpid(_module.entries[i].pid, NULL, 0); //!< Wait for it to finish
 			}
 			_module.entries[i].ended = 1;

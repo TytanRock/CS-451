@@ -7,6 +7,7 @@
 
 #define USAGE "schedule <filename>"
 
+/* Local struct that holds stateful data */
 static struct {
 	process_table * table;
 	int table_entries;
@@ -14,11 +15,21 @@ static struct {
 	unsigned keep_alive : 1;
 } _module;
 
+/** 
+ * handle_sigint
+ * Purpose: Handle interrupt signal
+ * Parameters:
+ *  sig - interrupt used to call this
+ */
 void handle_sigint(int sig) {
 	_module.keep_alive = 0;
 	printf("Closing...\n");
 }
 
+/**
+ * init_module
+ * Purpose: Initialize the module
+ */
 void init_module() {
 	signal(SIGINT, handle_sigint);
 }
@@ -48,6 +59,7 @@ int main(int argc, char **argv) {
 		while(_module.keep_alive) {
 			ERR_CODE ret = run_schedule();
 			if(ret == ALL_ENDED) break;
+			pause();
 		}
 		/* SIGINT is called, let's stop processes */
 		stop_processor();

@@ -1,12 +1,13 @@
 #!/bin/bash
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-cd ${DIR}/bin
+cd ${DIR}
 
-tests=(	"./schedule" 
+tests=(	"cat test.txt"
+	"./bin/schedule test.txt"
 	)
 
-echo "These are the test cases used for the program:" >> demo.txt
+echo "These are the test cases used for the program:" > demo.txt
 
 
 for ((i = 0; i < ${#tests[@]}; i++ )); do
@@ -15,7 +16,7 @@ for ((i = 0; i < ${#tests[@]}; i++ )); do
 	echo "" &>> demo.txt
 done
 
-mv demo.txt ../
+#mv demo.txt ../
 
 exit 0
 
