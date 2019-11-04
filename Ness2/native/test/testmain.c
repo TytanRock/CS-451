@@ -147,6 +147,24 @@ void test_prime() {
 
 }
 
+void test_full_execution() {
+	childs ch = create_fork();
+	assert(ch.OK);
+
+	if(ch.pid == 0) {
+		char * args[] = {"./gcov/schedule", "test.txt", NULL};
+		execv(args[0], args);
+		exit(1);
+	}
+	int ret;
+	sleep(1);
+	waitpid(ch.pid, &ret, 0);
+	ret = WEXITSTATUS(ret);
+	assert_int_equal(ret, 0);
+
+	close(ch.fd[0]);
+}
+
 int main(int argc, char **argv) {
 	const UnitTest tests[] = {
 		unit_test(test_no_param),
@@ -154,6 +172,7 @@ int main(int argc, char **argv) {
 		unit_test(test_bad_file),
 		unit_test(test_good_file),
 		unit_test(test_prime),
+		unit_test(test_full_execution),
 	};
 	return run_tests(tests, "run");
 }
