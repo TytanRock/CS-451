@@ -58,7 +58,7 @@ pipeline {
 		always {
 			junit 'Ness1/run_xunit.xml'
 			junit 'Ness2/run_xunit.xml'
-			publishCoverage adapters: [jacocoAdapter(mergeToOneReport: true, path: 'Ness*/gcov/rep.xml')]
+			publishCoverage adapters: [coberturaAdapter(mergeToOneReport: true, path: 'Ness*/gcov/rep.xml')]
 		}
 	}
 }
