@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
 
 	/* Print errors if there are errors */
 	switch(err) {
-		case OK: break; // !<Everything OK
+		case OK: break; //!< Everything OK
 		case INVALID_FILE:
 			fprintf(stderr, "File not found\n");
 			break;
