@@ -138,7 +138,7 @@ void test_prime() {
 	sleep(1); // Wait a bit
 	kill(ch.pid, SIGCONT);
 	sleep(10); //!< Wait the remainder
-	kill(ch.pid, SIGINT); //!< Stop the process
+	kill(ch.pid, SIGTERM); //!< Stop the process
 	waitpid(ch.pid, &ret, 0);
 	ret = WEXITSTATUS(ret);
 	assert_int_equal(ret, 0);

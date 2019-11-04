@@ -50,7 +50,7 @@ void find_next_prime() {
 }
 
 void initialize() {
-	_module.current_num = 1098765432;
+	_module.current_num = 0;
 	srand(time(0));
 	_module.current_num += rand();
 	_module.active = 1;
