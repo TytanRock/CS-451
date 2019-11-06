@@ -83,7 +83,9 @@ int main(int argc, char **argv) {
 	/* We have to free memory that's dynamically allocated */
 	free_processor();
 	free(_module.table);
+	/* If we had an error, return Failure */
 	if(err) { exit(-1); }
+	/* Otherwise we return Success */
 	else { exit(0); }
 }
 

@@ -2,6 +2,15 @@
 #include <stdio.h>
 #include "../../include/fileparser.h"
 
+/**
+ * parse_file
+ * Purpose: Parse the given filename into an array of process_table's
+ * Parameters:
+ *  filename - name of file to parse
+ *  table - Pointer to array of process_tables
+ *  entry_count - int pointer that gets filled with the total number of entries
+ * Returns: Error code based on success of function
+ */
 ERR_CODE parse_file(char * filename, process_table ** table, int *entry_count) {
 	/* Read file and begin parsing */
 	FILE * file = fopen(filename, "r");
@@ -15,11 +24,9 @@ ERR_CODE parse_file(char * filename, process_table ** table, int *entry_count) {
 
 	/* Find how many entries are needed in the table */
 	unsigned int line_count;
-	{
-		char ch;
-		while((ch = fgetc(file)) != EOF) {
-			if(ch == '\n') ++line_count;
-		}
+	char ch;
+	while((ch = fgetc(file)) != EOF) {
+		if(ch == '\n') ++line_count;
 	}
 	fseek(file, 0, SEEK_SET); // Re-set file to beginning
 
@@ -41,6 +48,7 @@ ERR_CODE parse_file(char * filename, process_table ** table, int *entry_count) {
 		if(matches != 4 && matches != -1) {
 			return INVALID_FILE_FORMAT;
 		}
+		/* If we have data, record it in the array */
 		if(matches == 4) {
 			++(*entry_count);
 			(*table)[i].process_number = proc_num;
@@ -49,6 +57,7 @@ ERR_CODE parse_file(char * filename, process_table ** table, int *entry_count) {
 			(*table)[i].priority = priority;
 		}
 	}
-	return OK;
+
+	return OK; //!< We successfully parsed, return OK
 }
 

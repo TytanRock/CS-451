@@ -56,6 +56,11 @@ void handle_timer(int signal) {
 	_module.timer_dirty = 1;
 }
 
+/**
+ * compare
+ * Purpose: Compares two entries
+ * Returns: difference in arrival time between a and b
+ */
 int compare(const void * a, const void * b) {
 	return ((schedule_entry *)a)->table->arrival_time - 
 		((schedule_entry *)b)->table->arrival_time;
