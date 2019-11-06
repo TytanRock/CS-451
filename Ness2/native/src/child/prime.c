@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <time.h>
 
+#define MAX_NUM 1000000000
+
 /**
  * Struct that holds module-specific variables
  */
@@ -93,6 +95,9 @@ void initialize() {
 	srand(time(0));
 	/* Make current number from random */
 	_module.current_num = rand();
+	/* Make sure our start isn't too high */
+	if(_module.current_num > MAX_NUM) 
+		_module.current_num = MAX_NUM;
 	/* Start with module being active */
 	_module.active = 1;
 	/* Assign all signals to handlers */
