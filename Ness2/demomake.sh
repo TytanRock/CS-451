@@ -5,6 +5,8 @@ cd ${DIR}
 
 tests=(	"cat test.txt"
 	"./bin/schedule test.txt"
+	"cat test2.txt"
+	"./bin/schedule test2.txt"
 	)
 
 echo "These are the test cases used for the program:" > demo.txt

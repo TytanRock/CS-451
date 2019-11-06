@@ -15,7 +15,7 @@ BinDir=bin
 GcovDir=gcov
 
 CC=gcc
-CFlags = -Wall
+CFlags = -Wall -Werror
 LFlags =
 
 
@@ -66,4 +66,21 @@ clean:
 	@rm -rf $(BinDir)
 	@rm -rf $(GcovDir)
 	@rm -f *.xml
+	@rm -rf zip
+	@rm -f demo.txt
+	@rm -f Ness2.zip
+
+zipup: clean
+	@make
+	@./demomake.sh
+	@mkdir zip -p
+	@mv demo.txt zip/
+	@cp -r native zip/
+	@rm -r zip/native/test
+	@cp makefile zip/
+	@cp README.md zip/
+	@zip -r tmp.zip zip
+	@make clean
+	@rm -rf zip
+	@mv tmp.zip Ness2.zip
 
