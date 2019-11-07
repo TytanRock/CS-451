@@ -1,99 +1,88 @@
-TARGET = schedule
-TARGET_CHILD = prime
-TARGET_TEST = schedule_test
+TARGET=schedule
+TARGET_CHILD=prime
+TEST=$(TARGET)_test
 
-ROOTOBJDIR = obj
+MainSrcDir = native/src/main
+ChildSrcDir = native/src/child
+TestSrcDir = native/test
 
-SRCDIR = native/src/main
-CHILDDIR = native/src/child
-INCDIR = native/include
-OBJDIR = obj/main
-CHILDOBJDIR = obj/child
-BINDIR = bin
-GCOVDIR = gcov
+RootObjDir = obj
+MainObjDir = $(RootObjDir)
+ChildObjDir = $(RootObjDir)
+TestObjDir = $(RootObjDir)/test
 
-TESTDIR = native/test
-LIBDIR = ../libs
+BinDir=bin
+GcovDir=gcov
 
-CC = gcc
-CFlags = -Wall -I
+CC=gcc
+CFlags = -Wall -Werror
+LFlags =
 
-LINKER = gcc
-LFlags = -Wall -I. -lm
 
-SOURCES := $(wildcard $(SRCDIR)/*.c)
-CHILDSOURCES := $(wildcard $(CHILDDIR)/*.c)
-INCLUDES:= $(wildcard $(INCDIR)/*.h)
-OBJECTS := $(SOURCES:$(SRCDIR)%.c=$(OBJDIR)/%.o)
-CHILDOBS := $(CHILDSOURCES:$(CHILDDIR)%.c=$(CHILDOBJDIR)/%.o)
+MainSources := $(wildcard $(MainSrcDir)/*.c)
+ChildSources := $(wildcard $(ChildSrcDir)/*.c)
+TestSources := $(wildcard $(TestSrcDir)/*.c)
 
-TESTOBS := $(TESTS:$(TESTDIR)%.c=$(OBJDIR)/%.o)
-TESTS	:= $(wildcard $(TESTDIR)/*.c)
-GCOVOBS := $(SOURCES:$(SRCDIR)%.c=$(GCOVDIR)/%.o)
-TESTALLOBS := $(filter-out $(OBJDIR)//main.o, $(TESTOBS) $(OBJECTS))
+MainObjs := $(MainSources:$(MainSrcDir)%.c=$(MainObjDir)%.o)
+ChildObjs := $(ChildSources:$(ChildSrcDir)%.c=$(ChildObjDir)%.o)
+TestObjs := $(TestSources:$(TestSrcDir)%.c=$(TestObjDir)%.o)
 
-$(BINDIR)/$(TARGET): $(OBJECTS) $(BINDIR)/$(TARGET_CHILD)
-	@mkdir $(BINDIR) -p
-	@$(LINKER) $(OBJECTS) -o $(LFLAGS) $@
-	@echo "Linking "$< " complete"
+build: $(MainObjs) child
+	@mkdir $(BinDir) -p
+	@$(CC) $(MainObjs) -o $(BinDir)/$(TARGET) $(LFlags)
+	@echo "Linking "$(TARGET)" complete"
 
-$(BINDIR)/$(TARGET_CHILD): $(CHILDOBS)
-	@mkdir $(BINDIR) -p
-	@$(LINKER) $(CHILDOBS) -o $(LFLAGS) $@
-	@echo "Linking "$<" complete"
+child: $(ChildObjs)
+	@mkdir $(BinDir) -p
+	@$(CC) $(ChildObjs) -o $(BinDir)/$(TARGET_CHILD) $(LFlags)
+	@echo "Linking "$(TARGET_CHILD)" complete"
 
-$(GCOVDIR)/$(TARGET_TEST): $(TESTALLOBS) $(GCOVDIR)/$(TARGET)
-	@mkdir $(GCOVDIR) -p
-	@$(LINKER) $(TESTALLOBS) -o $(LFLAGS) $@
-	@echo "Test Linking complete"
+test: $(TestObjs)
+	@mkdir $(GcovDir) -p
+	@make build BinDir=$(GcovDir) MainObjDir=$(GcovDir) ChildObjDir=$(GcovDir) CFlags=--coverage LFlags=-fprofile-generate
+	@$(CC) $(TestObjs) -o $(LFlags) $(GcovDir)/$(TEST)
+	@cp $(MainSrcDir)/* $(GcovDir)
+	@cp $(ChildSrcDir)/* $(GcovDir)
+	@echo "Linking "$(TEST)" complete"
 
-$(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
-	@mkdir $(OBJDIR) -p
-	@$(CC) -c $(CFLAGS) $< -o $@
+$(MainObjs): $(MainObjDir)/%.o : $(MainSrcDir)/%.c
+	@mkdir $(MainObjDir) -p
+	@$(CC) -c $(CFlags) $< -o $@
 	@echo "Compiled "$<" successfully"
 
-$(CHILDOBS): $(CHILDOBJDIR)/%.o : $(CHILDDIR)/%.c
-	@mkdir $(CHILDOBJDIR) -p
-	@$(CC) -c $(CFLAGS) $< -o $@
+$(ChildObjs): $(ChildObjDir)/%.o : $(ChildSrcDir)/%.c
+	@mkdir $(ChildObjDir) -p
+	@$(CC) -c $(CFlags) $< -o $@
 	@echo "Compiled "$<" successfully"
 
-$(TESTOBS): $(OBJDIR)/%.o : $(TESTDIR)/%.c
-	@mkdir $(OBJDIR) -p
-	@$(CC) -c $(CFLAGS) $< -o $@ -I $(TESTDIR)
+$(TestObjs): $(TestObjDir)/%.o : $(TestSrcDir)/%.c
+	@mkdir $(TestObjDir) -p
+	@$(CC) -c $(CFlags) $< -o $@
 	@echo "Compiled "$<" successfully"
-
-$(GCOVOBS): $(GCOVDIR)/%.o : $(SRCDIR)/%.c
-	@mkdir $(GCOVDIR) -p
-	@$(CC) -c $(CFLAGS) --coverage $< -o $@
-	@echo "compiled "$<" successfully"
-	@cp $< $(GCOVDIR)
-
-$(GCOVDIR)/$(TARGET): $(GCOVOBS)
-	@mkdir $(GCOVDIR) -p
-	@$(CC) $(GCOVOBS) --coverage -o $@
-	@echo gcov complete
-
-zipup: clean
-	@mkdir zip -p
-	@mkdir zip/native -p
-	@cp native/src/ zip/native -r
-	@cp native/include/ zip/native -r
-	@cp makefile zip
-	@cp README.md zip
-	@make
-	@./demomake.sh
-	@cp demo.txt zip
-	@zip -r tmp.zip zip
-	@make clean
-	@mv tmp.zip out.zip
-
 
 .PHONY: clean
 clean:
-	@rm -rf $(ROOTOBJDIR)
-	@rm -rf $(BINDIR)
-	@rm -rf zip
-	@rm -f out.zip
+	@rm -rf $(RootObjDir)
+	@rm -rf $(BinDir)
+	@rm -rf $(GcovDir)
 	@rm -f *.xml
+	@rm -rf zip
 	@rm -f demo.txt
-	@rm -rf $(GCOVDIR)
+	@rm -f Ness2.zip
+
+zipup: clean
+	@make
+	@./demomake.sh
+	@mkdir zip -p
+	@mv demo.txt zip/
+	@cp -r native zip/
+	@rm -r zip/native/test
+	@cp makefile zip/
+	@cp README.md zip/
+	@cp test.txt zip/
+	@cp test2.txt zip/
+	@zip -r tmp.zip zip
+	@make clean
+	@rm -rf zip
+	@mv tmp.zip Ness2.zip
+
