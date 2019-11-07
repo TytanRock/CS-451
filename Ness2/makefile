@@ -79,6 +79,8 @@ zipup: clean
 	@rm -r zip/native/test
 	@cp makefile zip/
 	@cp README.md zip/
+	@cp test.txt zip/
+	@cp test2.txt zip/
 	@zip -r tmp.zip zip
 	@make clean
 	@rm -rf zip
