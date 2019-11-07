@@ -1,3 +1,12 @@
+/**
+ * Author: Cory
+ * Assignment Number: 2
+ * Date of Submission: 11/6/2019
+ * Name of this file: scheduler.c
+ * Description of the program:
+ *  This program runs a scheduler on a set of prime-finders
+ *  in order to show how a priority scheduler works
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
