@@ -11,6 +11,7 @@ struct {
 	unsigned int current_floor;
 
 	sem_t button_mutex;
+	sem_t floor_mutex;
 
 	unsigned initialized : 1;
 	unsigned going_up : 1;
@@ -21,6 +22,14 @@ void add_floor_stop(unsigned int floor) {
 	sem_wait(&_module.button_mutex);
 	_module.floor_stops[floor] |= 1;
 	sem_post(&_module.button_mutex);
+}
+
+int get_floor_stop() {
+	/* Ensure we're not changing the floor state */
+	sem_wait(&_module.floor_mutex);
+	int ret = _module.current_floor;
+	sem_post(&_module.floor_mutex);
+	return ret;
 }
 
 void initialize_lift(int floor_num) {
@@ -34,6 +43,7 @@ void initialize_lift(int floor_num) {
 	}
 	/* Initialize other variables */
 	sem_init(&_module.button_mutex, 0, MUTEX_INIT);
+	sem_init(&_module.floor_mutex, 0, MUTEX_INIT);
 }
 
 void run_lift() {
@@ -53,9 +63,11 @@ void run_lift() {
 		sem_post(&_module.button_mutex); //!< Unlock mutex
 
 		/* Check to see if we're at an end */
+		sem_wait(&_module.floor_mutex);
 		if(_module.current_floor == 0 || _module.current_floor == _global.max_floor) {
 			_module.going_up ^= 1; //!< Invert direction
 		}
+		sem_post(&_module.floor_mutex);
 		sleep(1); //!< Wait a second while we travel
 		/* Move floor based on direction headed */
 		if(_module.going_up) {

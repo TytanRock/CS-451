@@ -2,10 +2,8 @@
 #define __PERSON_H_
 
 typedef struct {
-	struct {
-		int floor;
-		int wait;
-	} *_pairs;
-} person_times;
+	int floor;
+	int wait;
+} person_time;
 
 #endif //__PERSON_H_

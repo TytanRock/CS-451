@@ -4,7 +4,7 @@
 void initialize_lift();
 void add_floor_stop(unsigned int floor);
 void run_lift();
-unsigned int lift_at();
+int get_floor_stop();
 
 #endif //__LIFT_H_
 
