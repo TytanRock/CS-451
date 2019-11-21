@@ -16,7 +16,7 @@ GcovDir=gcov
 
 CC=gcc
 CFlags = -Wall -Werror
-LFlags =
+LFlags = -pthread
 
 
 MainSources := $(wildcard $(MainSrcDir)/*.c)
@@ -27,7 +27,7 @@ MainObjs := $(MainSources:$(MainSrcDir)%.c=$(MainObjDir)%.o)
 #ChildObjs := $(ChildSources:$(ChildSrcDir)%.c=$(ChildObjDir)%.o)
 TestObjs := $(TestSources:$(TestSrcDir)%.c=$(TestObjDir)%.o)
 
-build: $(MainObjs) #child
+build: $(MainObjs)
 	@mkdir $(BinDir) -p
 	@$(CC) $(MainObjs) -o $(BinDir)/$(TARGET) $(LFlags)
 	@echo "Linking "$(TARGET)" complete"
