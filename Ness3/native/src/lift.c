@@ -32,24 +32,28 @@ int get_floor_stop() {
 	return ret;
 }
 
-void initialize_lift(int floor_num) {
+void initialize_lift() {
 	/* If we're not initialized, intialize it */
 	if(!_module.initialized) {
-		_module.floor_stops = malloc(floor_num);
+		_module.floor_stops = malloc(_global.max_floor);
 		_module.initialized = 1;
 	/* Otherwise just reallocate the space so we can clean it later */
 	} else {
-		_module.floor_stops = realloc(_module.floor_stops, floor_num);
+		_module.floor_stops = realloc(_module.floor_stops, _global.max_floor);
 	}
 	/* Initialize other variables */
 	sem_init(&_module.button_mutex, 0, MUTEX_INIT);
 	sem_init(&_module.floor_mutex, 0, MUTEX_INIT);
 }
 
-void run_lift() {
+void *start_lift_thread(void *arg) {
 	/* Initialize variables for thread */
 	int ended = 0;
 	int stopped_at_floor = 0;
+
+	/* Busy wait until master thread is ready */
+	while(!glob_start);
+
 	/* While there's people, do this */
 	while(!ended) {
 		/* Lock mutex and ensure nobody adds button states */
@@ -91,5 +95,7 @@ void run_lift() {
 			}
 		}
 	}
+
+	return NULL;
 }
 

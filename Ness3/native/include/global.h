@@ -7,5 +7,7 @@ struct {
 	unsigned int max_wander_time;
 } _global;
 
+int glob_start;
+
 #endif //__GLOBAL_H_
 
