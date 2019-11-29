@@ -7,10 +7,11 @@
 #include <semaphore.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define VALID_OPTS "p:w:f:"
 
-struct {
+static struct {
 	pthread_t lift_thread;
 	pthread_t *people_threads;
 
@@ -56,17 +57,18 @@ int main(int argc, char **args) {
 	find_options(argc, args);
 	
 	/* Prep modules for threads */
-	_module.people_threads = malloc(sizeof(pthread_t) * _global.total_people);
-	_module.people_time = malloc(sizeof(person_time) * _global.total_people);
+	_module.people_threads = malloc(sizeof(pthread_t)*_global.total_people);
+	_module.people_time = malloc(sizeof(person_time)*_global.total_people);
 	initialize_lift();
 	
-	char *tmp_string;
-	size_t size;
+	char *tmp_string = malloc(1);
+	size_t size = 1;
 	for (int i = 0; i < _global.total_people; ++i) {
 		getline(&tmp_string, &size, stdin);
 		parse_person_line(tmp_string, &_module.people_time[i]);
-		free(tmp_string);
+		_module.people_time[i].id = i;
 	}
+	free(tmp_string);
 
 	/* Start threads */
 	pthread_create(&_module.lift_thread, NULL, start_lift_thread, NULL);
@@ -77,6 +79,7 @@ int main(int argc, char **args) {
 	/* set global start to 1 so all threads can execute */
 	glob_start = 1;
 
-	
+	pthread_join(_module.lift_thread, NULL);
+
 	return 0;
 }

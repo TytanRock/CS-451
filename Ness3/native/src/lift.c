@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <semaphore.h>
 
@@ -6,7 +7,7 @@
 
 #define MUTEX_INIT 1
 
-struct {
+static struct {
 	unsigned int * floor_stops;
 	unsigned int current_floor;
 
@@ -35,7 +36,7 @@ int get_floor_stop() {
 void initialize_lift() {
 	/* If we're not initialized, intialize it */
 	if(!_module.initialized) {
-		_module.floor_stops = malloc(_global.max_floor);
+		_module.floor_stops = calloc(_global.max_floor + 1, sizeof(int));
 		_module.initialized = 1;
 	/* Otherwise just reallocate the space so we can clean it later */
 	} else {
@@ -51,25 +52,35 @@ void *start_lift_thread(void *arg) {
 	int ended = 0;
 	int stopped_at_floor = 0;
 
+	_module.going_up = 1;
+
 	/* Busy wait until master thread is ready */
 	while(!glob_start);
+	printf("Elevator:\t\tAt %d\n", 0);
+
 
 	/* While there's people, do this */
 	while(!ended) {
 		/* Lock mutex and ensure nobody adds button states */
 		sem_wait(&_module.button_mutex);
+
 		/* Check if there's a reason to stop on this floor */
-		if(_module.floor_stops[_module.current_floor] & 1) {
-			_module.floor_stops[_module.current_floor] ^= 1;
-			stopped_at_floor = 1;
+		if(_module.floor_stops[_module.current_floor]) {
+			_module.floor_stops[_module.current_floor] = 0;
+			if(_module.current_floor != 0) { 
+				stopped_at_floor = 1;
+			}
+			printf("Elevator:\t\tStopping at this floor\n");
 			sleep(1); //!< Wait a second
 		}
 		sem_post(&_module.button_mutex); //!< Unlock mutex
 
 		/* Check to see if we're at an end */
 		sem_wait(&_module.floor_mutex);
-		if(_module.current_floor == 0 || _module.current_floor == _global.max_floor) {
-			_module.going_up ^= 1; //!< Invert direction
+		if(_module.current_floor == 0) {
+			_module.going_up = 1; //!< We're at bottom, let's go up
+		}else if(_module.current_floor == _global.max_floor) {
+			_module.going_up = 0; //!< We're at top, let's go down
 		}
 		sem_post(&_module.floor_mutex);
 		sleep(1); //!< Wait a second while we travel
@@ -79,19 +90,23 @@ void *start_lift_thread(void *arg) {
 		} else {
 			_module.current_floor--;
 		}
+
+		printf("Elevator:\t\tAt %d\n", _module.current_floor);
 		/* Check if we've completed a cycle */
 		if(_module.current_floor == 0 && !_module.going_up) {
 			/* We've completed 2 whole cycles without a person */
 			if(stopped_at_floor == 2) {
 				ended = 1; //!< End this
-			}
+				printf("Elevator:\t\tNobody was picked up, exiting program\n");
 			/* We haven't seen a person */
-			if(!stopped_at_floor) {
+			} else if(!stopped_at_floor) {
+				printf("Elevator:\t\tHaven't seen anybody this trip, waiting for %d seconds\n", _global.max_wander_time);
 				sleep(_global.max_wander_time); //!< Wait for max wander time
 				stopped_at_floor = 2;
-			/* We have seen a person, nothing interesting */
+				/* We have seen a person, nothing interesting */
 			} else {
 				stopped_at_floor = 0;
+				printf("Elevator:\t\tCycle complete, I saw at least 1 person\n");
 			}
 		}
 	}

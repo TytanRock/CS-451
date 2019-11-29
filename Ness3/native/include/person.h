@@ -7,6 +7,8 @@ typedef struct {
 		int wait;
 	} *pairs;
 	int pair_count;
+
+	int id;
 } person_time;
 
 void *start_person_thread(void *arg);
