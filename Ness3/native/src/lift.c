@@ -76,20 +76,20 @@ void *start_lift_thread(void *arg) {
 		sem_post(&_module.button_mutex); //!< Unlock mutex
 
 		/* Check to see if we're at an end */
-		sem_wait(&_module.floor_mutex);
 		if(_module.current_floor == 0) {
 			_module.going_up = 1; //!< We're at bottom, let's go up
 		}else if(_module.current_floor == _global.max_floor) {
 			_module.going_up = 0; //!< We're at top, let's go down
 		}
-		sem_post(&_module.floor_mutex);
 		sleep(1); //!< Wait a second while we travel
+		sem_wait(&_module.floor_mutex);
 		/* Move floor based on direction headed */
 		if(_module.going_up) {
 			_module.current_floor++;
 		} else {
 			_module.current_floor--;
 		}
+		sem_post(&_module.floor_mutex);
 
 		printf("Elevator:\t\tAt %d\n", _module.current_floor);
 		/* Check if we've completed a cycle */
