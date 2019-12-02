@@ -1,6 +1,7 @@
 #include "../include/lift.h"
 #include "../include/person.h"
 #include "../include/global.h"
+#include "../include/printing.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -53,6 +54,7 @@ int main(int argc, char **args) {
 	_global.total_people = 1;
 	_global.max_wander_time = 10;
 	_global.max_floor = 10;
+	initialize_printing();
 	/* Parse command arguments */
 	find_options(argc, args);
 	

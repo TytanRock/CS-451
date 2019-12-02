@@ -6,6 +6,9 @@
 #include "../include/global.h"
 #include "../include/person.h"
 #include "../include/lift.h"
+#include "../include/printing.h"
+
+#define printf timed_print
 
 void parse_person_line(char *str, person_time *ref) {
 	sscanf(str, "%d", &ref->pair_count);
@@ -29,16 +32,16 @@ void *start_person_thread(void *arg) {
 	while(!glob_start) ;
 
 	for(int i = 0; i < time->pair_count; ++i) {
-		printf("Person %d:\tAt %d, going to %d\n", time->id, current_floor, time->pairs[i].floor);
+		printf("Person %d:\t%d-->%d\n", time->id, current_floor, time->pairs[i].floor);
 		/* Push the button to let elevator know we're here */
 		add_floor_stop(current_floor);
-		printf("Person %d:\tI pushed button for floor %d\n", time->id, current_floor);
+		printf("Person %d:\tI pushed the button for floor %d\n", time->id, current_floor);
 		/* Busy wait until elevator is at our floor */
 		while(get_floor_stop() != current_floor) { }
 		printf("Person %d:\tOn elevator\n", time->id);
 		/* Push button for where to go */
 		add_floor_stop(time->pairs[i].floor);
-		printf("Person %d:\tI pushed button for floor %d\n", time->id, time->pairs[i].floor);
+		printf("Person %d:\tI pushed the button for floor %d\n", time->id, time->pairs[i].floor);
 		/* Busy wait until elevator is at the desired floor */
 		while(get_floor_stop() != time->pairs[i].floor) { }
 		printf("Person %d:\tOff elevator, waiting for %ds\n", time->id, time->pairs[i].wait);
@@ -47,7 +50,7 @@ void *start_person_thread(void *arg) {
 		sleep(time->pairs[i].wait);
 	}
 
-	printf("I'm leaving\n");
+	printf("Person %d:\tI'm leaving\n", time->id);
 
 	return NULL;
 }

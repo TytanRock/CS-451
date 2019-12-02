@@ -4,8 +4,10 @@
 #include <semaphore.h>
 
 #include "../include/global.h"
+#include "../include/printing.h"
 
 #define MUTEX_INIT 1
+#define printf timed_print
 
 static struct {
 	unsigned int * floor_stops;
@@ -56,7 +58,8 @@ void *start_lift_thread(void *arg) {
 
 	/* Busy wait until master thread is ready */
 	while(!glob_start);
-	printf("Elevator:\t\tAt %d\n", 0);
+	usleep(10000); //!< Wait to ensure people are all initialized before lift
+	printf("Elevator:\t\t\tAt %d\n", 0);
 
 
 	/* While there's people, do this */
@@ -70,7 +73,7 @@ void *start_lift_thread(void *arg) {
 			if(_module.current_floor != 0) { 
 				stopped_at_floor = 1;
 			}
-			printf("Elevator:\t\tStopping at this floor\n");
+			printf("Elevator:\t\t\tStopping at this floor\n");
 			sleep(1); //!< Wait a second
 		}
 		sem_post(&_module.button_mutex); //!< Unlock mutex
@@ -81,8 +84,8 @@ void *start_lift_thread(void *arg) {
 		}else if(_module.current_floor == _global.max_floor) {
 			_module.going_up = 0; //!< We're at top, let's go down
 		}
-		sleep(1); //!< Wait a second while we travel
 		sem_wait(&_module.floor_mutex);
+		sleep(1); //!< Wait a second while we travel
 		/* Move floor based on direction headed */
 		if(_module.going_up) {
 			_module.current_floor++;
@@ -91,22 +94,22 @@ void *start_lift_thread(void *arg) {
 		}
 		sem_post(&_module.floor_mutex);
 
-		printf("Elevator:\t\tAt %d\n", _module.current_floor);
+		printf("Elevator:\t\t\tAt %d\n", _module.current_floor);
 		/* Check if we've completed a cycle */
 		if(_module.current_floor == 0 && !_module.going_up) {
 			/* We've completed 2 whole cycles without a person */
 			if(stopped_at_floor == 2) {
 				ended = 1; //!< End this
-				printf("Elevator:\t\tNobody was picked up, exiting program\n");
+				printf("Elevator:\t\t\tNobody was picked up, exiting program\n");
 			/* We haven't seen a person */
 			} else if(!stopped_at_floor) {
-				printf("Elevator:\t\tHaven't seen anybody this trip, waiting for %d seconds\n", _global.max_wander_time);
-				sleep(_global.max_wander_time); //!< Wait for max wander time
+				printf("Elevator:\t\t\tHaven't seen anybody this trip, waiting for %d seconds\n", _global.max_wander_time);
+				sleep(_global.max_wander_time - 1); //!< Wait for max wander time minus 1, since we already wait 1 second
 				stopped_at_floor = 2;
 				/* We have seen a person, nothing interesting */
 			} else {
 				stopped_at_floor = 0;
-				printf("Elevator:\t\tCycle complete, I saw at least 1 person\n");
+				printf("Elevator:\t\t\tCycle complete, I saw at least 1 person\n");
 			}
 		}
 	}
