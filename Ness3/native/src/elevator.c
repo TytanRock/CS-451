@@ -1,3 +1,7 @@
+/**
+ * Cory Ness
+ */
+
 #include "../include/lift.h"
 #include "../include/person.h"
 #include "../include/global.h"
@@ -12,11 +16,12 @@
 
 #define VALID_OPTS "p:w:f:"
 
+/* Local struct holding module-variables */
 static struct {
-	pthread_t lift_thread;
-	pthread_t *people_threads;
+	pthread_t lift_thread; //!< Singular thread for the lift thread
+	pthread_t *people_threads; //!< Array of threads for people
 
-	person_time *people_time;
+	person_time *people_time; //!< Array of time-floor pairs for each person
 } _module;
 
 /**
@@ -29,7 +34,7 @@ static struct {
  *  args - argument strings as passed from main
  */
 void find_options(const int argc, char **args) {
-	char opt;
+	char opt; //!< Character of the option passed
 	
 	/* Get all arguments from the command line */
 	while((opt = getopt(argc, args, VALID_OPTS)) != -1) {
@@ -49,6 +54,19 @@ void find_options(const int argc, char **args) {
 	}
 }
 
+/**
+ * main
+ * Purpose:
+ *  Run the program
+ *
+ * Parameters:
+ *  argc - argument count passed
+ *  args - arguments passed
+ * 
+ * Returns:
+ *  0 for success
+ *  otherwise failure
+ */
 int main(int argc, char **args) {
 	/* Initialize module variables */
 	_global.total_people = 1;
@@ -63,14 +81,16 @@ int main(int argc, char **args) {
 	_module.people_time = malloc(sizeof(person_time)*_global.total_people);
 	initialize_lift();
 	
+	/* Temporarily allocate string to pass into later function */
 	char *tmp_string = malloc(1);
 	size_t size = 1;
+	/* Parse total number of people */
 	for (int i = 0; i < _global.total_people; ++i) {
-		getline(&tmp_string, &size, stdin);
-		parse_person_line(tmp_string, &_module.people_time[i]);
-		_module.people_time[i].id = i;
+		getline(&tmp_string, &size, stdin); //!< Get line from stdin
+		parse_person_line(tmp_string, &_module.people_time[i]); //!< Parse it, and fill the people_time struct
+		_module.people_time[i].id = i; //!< Give person an ID
 	}
-	free(tmp_string);
+	free(tmp_string); //!< Free malloc'd string
 
 	/* Start threads */
 	pthread_create(&_module.lift_thread, NULL, start_lift_thread, NULL);
@@ -81,6 +101,7 @@ int main(int argc, char **args) {
 	/* set global start to 1 so all threads can execute */
 	glob_start = 1;
 
+	/* Wait until lift thread finishes, it ensures every other thread is finished */
 	pthread_join(_module.lift_thread, NULL);
 
 	return 0;

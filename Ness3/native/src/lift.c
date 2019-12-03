@@ -7,34 +7,57 @@
 #include "../include/printing.h"
 
 #define MUTEX_INIT 1
+/* Redefine printf to timed_print so we prepend the time */
 #define printf timed_print
 
+/* Struct of variables for this module */
 static struct {
-	unsigned int * floor_stops;
-	unsigned int current_floor;
+	unsigned int * floor_stops; //!< Array of floors the elevator needs to stop at
+	unsigned int current_floor; //!< Current floor elevator is at
 
-	sem_t button_mutex;
-	sem_t floor_mutex;
+	sem_t button_mutex; //!< Semaphore for button pushing
+	sem_t floor_mutex; //!< Semaphore for floor accessing
 
-	unsigned initialized : 1;
-	unsigned going_up : 1;
+	unsigned initialized : 1; //!< Bool to keep track if module is initialized
+	unsigned going_up : 1; //!< Bool to keep track if elevator is going up or down
 }_module;
 
+/**
+ * add_floor_stop
+ * Purpose: "Push the button" so elevator stops at a floor
+ * Parameters:
+ *  floor - Floor for elevator to stop at
+ */
 void add_floor_stop(unsigned int floor) {
-	/* Ensure we're not pushing the button while the elevator is stopping */
+	/* 
+	 * Button mutex is locked while elevator is looking at button, 
+	 * Ensures button isn't pressed immediately after elevator has cleared the button 
+	 */
 	sem_wait(&_module.button_mutex);
-	_module.floor_stops[floor] |= 1;
+	_module.floor_stops[floor] = 1; //!< Add stop to array
 	sem_post(&_module.button_mutex);
 }
 
+/**
+ * get_floor_stop
+ * Purpose: Get current floor for elevator
+ * Returns: Floor elevator is at
+ */
 int get_floor_stop() {
-	/* Ensure we're not changing the floor state */
+	/* 
+	 * Floor mutex is locked while elevator is moving between floors,
+	 * Ensures floor location isn't looked at while elevator is between floors
+	 */
 	sem_wait(&_module.floor_mutex);
 	int ret = _module.current_floor;
 	sem_post(&_module.floor_mutex);
 	return ret;
 }
 
+/**
+ * initialize_lift
+ * Purpose: Initialize lift module
+ */
 void initialize_lift() {
 	/* If we're not initialized, intialize it */
 	if(!_module.initialized) {
@@ -49,11 +72,17 @@ void initialize_lift() {
 	sem_init(&_module.floor_mutex, 0, MUTEX_INIT);
 }
 
+/**
+ * start_lift_thread
+ * Purpose: Run the elevator thread
+ * Parameters:
+ *  arg - Pointer to struct (unused)
+ * Returns: void pointer to NULL
+ */
 void *start_lift_thread(void *arg) {
 	/* Initialize variables for thread */
 	int ended = 0;
 	int stopped_at_floor = 0;
-
 	_module.going_up = 1;
 
 	/* Busy wait until master thread is ready */
