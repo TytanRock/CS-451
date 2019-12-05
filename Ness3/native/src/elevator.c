@@ -22,7 +22,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define VALID_OPTS "p:w:f:"
+#define VALID_OPTS "p:w:f:h"
+
+#define USAGE "usage: elevator [-p <people>] [-w <wait time>] [-f <max floor>] [-h] ...\n \
+	-p <people> - The number of people that will be using elevator\n \
+	-w <wait time> - The maximum wait time of the people\n \
+	-f <max floor> - The maximum floor the elevator goes to\n \
+	-h - Display this help information\n \
+	... - Each person's time-pairs, passed into stdin, rather than the command line\n"
 
 /* Local struct holding module-variables */
 static struct {
@@ -56,7 +63,14 @@ void find_options(const int argc, char **args) {
 				break;
 			case 'f': // Floor argument
 				_global.max_floor = atoi(optarg);
+				break;
+			case 'h': // Help argument
+				printf(USAGE);
+				/* Leave program because we displayed help */
+				exit(0);
+				break;
 			case '?': // Unknown argument
+				printf(USAGE);
 				break;	
 		}
 	}
