@@ -1,5 +1,13 @@
 /**
- * Cory Ness
+ * Author: Cory Ness
+ * Assignment Number: 3
+ * Date of Submission: 12/5/2019
+ * Name of this file: elevator.c
+ * Description of program:
+ *  This program runs an elevator and n number of people
+ *  The people get on and off the elevator and move to specified floors
+ *  They wait for some number of seconds at each floor, and eventually leave the building
+ * This project uses 1 coupon
  */
 
 #include "../include/lift.h"
