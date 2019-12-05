@@ -1,0 +1,433 @@
+These are the test cases used for the program:
+$ cat test.txt
+2 3 3 0 2
+3 4 3 8 1 0 4
+
+
+$ ./bin/elevator -p 2 < test.txt
+ 0: Person 0:	0-->3
+ 0: Person 0:	I pushed the button for floor 0
+ 0: Person 0:	On elevator
+ 0: Person 0:	I pushed the button for floor 3
+ 0: Person 1:	0-->4
+ 0: Person 1:	I pushed the button for floor 0
+ 0: Person 1:	On elevator
+ 0: Person 1:	I pushed the button for floor 4
+ 0: Elevator:			At 0
+ 0: Elevator:			Stopping at this floor
+ 2: Elevator:			At 1
+ 3: Elevator:			At 2
+ 4: Elevator:			At 3
+ 4: Elevator:			Stopping at this floor
+ 4: Person 0:	Off elevator, waiting for 3s
+ 6: Elevator:			At 4
+ 6: Elevator:			Stopping at this floor
+ 6: Person 1:	Off elevator, waiting for 3s
+ 7: Person 0:	3-->0
+ 7: Person 0:	I pushed the button for floor 3
+ 8: Elevator:			At 5
+ 9: Person 1:	4-->8
+ 9: Person 1:	I pushed the button for floor 4
+ 9: Elevator:			At 6
+10: Elevator:			At 7
+11: Elevator:			At 8
+12: Elevator:			At 9
+13: Elevator:			At 10
+14: Elevator:			At 9
+15: Elevator:			At 8
+16: Elevator:			At 7
+17: Elevator:			At 6
+18: Elevator:			At 5
+19: Elevator:			At 4
+19: Elevator:			Stopping at this floor
+19: Person 1:	On elevator
+20: Person 1:	I pushed the button for floor 8
+21: Elevator:			At 3
+21: Elevator:			Stopping at this floor
+21: Person 0:	On elevator
+22: Person 0:	I pushed the button for floor 0
+23: Elevator:			At 2
+24: Elevator:			At 1
+25: Elevator:			At 0
+25: Elevator:			Cycle complete, I saw at least 1 person
+25: Elevator:			Stopping at this floor
+25: Person 0:	Off elevator, waiting for 2s
+27: Elevator:			At 1
+27: Person 0:	I'm leaving
+28: Elevator:			At 2
+29: Elevator:			At 3
+30: Elevator:			At 4
+31: Elevator:			At 5
+32: Elevator:			At 6
+33: Elevator:			At 7
+34: Elevator:			At 8
+34: Elevator:			Stopping at this floor
+34: Person 1:	Off elevator, waiting for 1s
+35: Person 1:	8-->0
+35: Person 1:	I pushed the button for floor 8
+36: Elevator:			At 9
+37: Elevator:			At 10
+38: Elevator:			At 9
+39: Elevator:			At 8
+39: Elevator:			Stopping at this floor
+39: Person 1:	On elevator
+40: Person 1:	I pushed the button for floor 0
+41: Elevator:			At 7
+42: Elevator:			At 6
+43: Elevator:			At 5
+44: Elevator:			At 4
+45: Elevator:			At 3
+46: Elevator:			At 2
+47: Elevator:			At 1
+48: Elevator:			At 0
+48: Elevator:			Cycle complete, I saw at least 1 person
+48: Elevator:			Stopping at this floor
+48: Person 1:	Off elevator, waiting for 4s
+50: Elevator:			At 1
+51: Elevator:			At 2
+52: Person 1:	I'm leaving
+52: Elevator:			At 3
+53: Elevator:			At 4
+54: Elevator:			At 5
+55: Elevator:			At 6
+56: Elevator:			At 7
+57: Elevator:			At 8
+58: Elevator:			At 9
+59: Elevator:			At 10
+60: Elevator:			At 9
+61: Elevator:			At 8
+62: Elevator:			At 7
+63: Elevator:			At 6
+64: Elevator:			At 5
+65: Elevator:			At 4
+66: Elevator:			At 3
+67: Elevator:			At 2
+68: Elevator:			At 1
+69: Elevator:			At 0
+69: Elevator:			Haven't seen anybody this trip, waiting for 10 seconds
+79: Elevator:			At 1
+80: Elevator:			At 2
+81: Elevator:			At 3
+82: Elevator:			At 4
+83: Elevator:			At 5
+84: Elevator:			At 6
+85: Elevator:			At 7
+86: Elevator:			At 8
+87: Elevator:			At 9
+88: Elevator:			At 10
+89: Elevator:			At 9
+90: Elevator:			At 8
+91: Elevator:			At 7
+92: Elevator:			At 6
+93: Elevator:			At 5
+94: Elevator:			At 4
+95: Elevator:			At 3
+96: Elevator:			At 2
+97: Elevator:			At 1
+98: Elevator:			At 0
+98: Elevator:			Nobody was picked up, exiting program
+
+$ ./bin/elevator -p 1 -w 2 -f 2 <<< "2 1 1 0 1"
+ 0: Person 0:	0-->1
+ 0: Person 0:	I pushed the button for floor 0
+ 0: Person 0:	On elevator
+ 0: Person 0:	I pushed the button for floor 1
+ 0: Elevator:			At 0
+ 0: Elevator:			Stopping at this floor
+ 2: Elevator:			At 1
+ 2: Elevator:			Stopping at this floor
+ 2: Person 0:	Off elevator, waiting for 1s
+ 3: Person 0:	1-->0
+ 3: Person 0:	I pushed the button for floor 1
+ 4: Elevator:			At 2
+ 5: Elevator:			At 1
+ 5: Elevator:			Stopping at this floor
+ 5: Person 0:	On elevator
+ 6: Person 0:	I pushed the button for floor 0
+ 7: Elevator:			At 0
+ 7: Elevator:			Cycle complete, I saw at least 1 person
+ 7: Elevator:			Stopping at this floor
+ 7: Person 0:	Off elevator, waiting for 1s
+ 8: Person 0:	I'm leaving
+ 9: Elevator:			At 1
+10: Elevator:			At 2
+11: Elevator:			At 1
+12: Elevator:			At 0
+12: Elevator:			Haven't seen anybody this trip, waiting for 2 seconds
+14: Elevator:			At 1
+15: Elevator:			At 2
+16: Elevator:			At 1
+17: Elevator:			At 0
+17: Elevator:			Nobody was picked up, exiting program
+
+$ cat longrun.txt
+4 4 2 6 3 4 7 0 2
+3 2 4 10 5 0 4
+2 10 10 0 4
+5 1 1 2 2 3 3 4 4 0 5
+6 7 3 6 4 7 4 2 1 10 10 0 3
+
+$ ./bin/elevator -p 5 < longrun.txt
+ 0: Person 0:	0-->4
+ 0: Person 0:	I pushed the button for floor 0
+ 0: Person 0:	On elevator
+ 0: Person 0:	I pushed the button for floor 4
+ 0: Person 1:	0-->2
+ 0: Person 1:	I pushed the button for floor 0
+ 0: Person 1:	On elevator
+ 0: Person 1:	I pushed the button for floor 2
+ 0: Person 2:	0-->10
+ 0: Person 2:	I pushed the button for floor 0
+ 0: Person 2:	On elevator
+ 0: Person 2:	I pushed the button for floor 10
+ 0: Person 3:	0-->1
+ 0: Person 3:	I pushed the button for floor 0
+ 0: Person 3:	On elevator
+ 0: Person 3:	I pushed the button for floor 1
+ 0: Person 4:	0-->7
+ 0: Person 4:	I pushed the button for floor 0
+ 0: Person 4:	On elevator
+ 0: Person 4:	I pushed the button for floor 7
+ 0: Elevator:			At 0
+ 0: Elevator:			Stopping at this floor
+ 2: Elevator:			At 1
+ 2: Elevator:			Stopping at this floor
+ 2: Person 3:	Off elevator, waiting for 1s
+ 3: Person 3:	1-->2
+ 3: Person 3:	I pushed the button for floor 1
+ 4: Elevator:			At 2
+ 4: Elevator:			Stopping at this floor
+ 4: Person 1:	Off elevator, waiting for 4s
+ 6: Elevator:			At 3
+ 7: Elevator:			At 4
+ 7: Elevator:			Stopping at this floor
+ 7: Person 0:	Off elevator, waiting for 2s
+ 8: Person 1:	2-->10
+ 8: Person 1:	I pushed the button for floor 2
+ 9: Elevator:			At 5
+ 9: Person 0:	4-->6
+ 9: Person 0:	I pushed the button for floor 4
+10: Elevator:			At 6
+11: Elevator:			At 7
+11: Elevator:			Stopping at this floor
+11: Person 4:	Off elevator, waiting for 3s
+13: Elevator:			At 8
+14: Elevator:			At 9
+14: Person 4:	7-->6
+14: Person 4:	I pushed the button for floor 7
+15: Elevator:			At 10
+15: Elevator:			Stopping at this floor
+15: Person 2:	Off elevator, waiting for 10s
+17: Elevator:			At 9
+18: Elevator:			At 8
+19: Elevator:			At 7
+19: Elevator:			Stopping at this floor
+19: Person 4:	On elevator
+20: Person 4:	I pushed the button for floor 6
+21: Elevator:			At 6
+21: Elevator:			Stopping at this floor
+21: Person 4:	Off elevator, waiting for 4s
+23: Elevator:			At 5
+24: Elevator:			At 4
+24: Elevator:			Stopping at this floor
+24: Person 0:	On elevator
+25: Person 2:	10-->0
+25: Person 4:	6-->7
+25: Person 0:	I pushed the button for floor 6
+25: Person 2:	I pushed the button for floor 10
+25: Person 4:	I pushed the button for floor 6
+26: Elevator:			At 3
+27: Elevator:			At 2
+27: Elevator:			Stopping at this floor
+27: Person 1:	On elevator
+28: Person 1:	I pushed the button for floor 10
+29: Elevator:			At 1
+29: Elevator:			Stopping at this floor
+29: Person 3:	On elevator
+30: Person 3:	I pushed the button for floor 2
+31: Elevator:			At 0
+31: Elevator:			Cycle complete, I saw at least 1 person
+32: Elevator:			At 1
+33: Elevator:			At 2
+33: Elevator:			Stopping at this floor
+33: Person 3:	Off elevator, waiting for 2s
+35: Person 3:	2-->3
+35: Elevator:			At 3
+35: Person 3:	I pushed the button for floor 2
+36: Elevator:			At 4
+37: Elevator:			At 5
+38: Elevator:			At 6
+38: Elevator:			Stopping at this floor
+38: Person 4:	On elevator
+38: Person 0:	Off elevator, waiting for 3s
+39: Person 4:	I pushed the button for floor 7
+40: Elevator:			At 7
+40: Elevator:			Stopping at this floor
+40: Person 4:	Off elevator, waiting for 4s
+41: Person 0:	6-->4
+41: Person 0:	I pushed the button for floor 6
+42: Elevator:			At 8
+43: Elevator:			At 9
+44: Person 4:	7-->2
+44: Person 4:	I pushed the button for floor 7
+44: Elevator:			At 10
+44: Elevator:			Stopping at this floor
+44: Person 2:	On elevator
+44: Person 1:	Off elevator, waiting for 5s
+45: Person 2:	I pushed the button for floor 0
+46: Elevator:			At 9
+47: Elevator:			At 8
+48: Elevator:			At 7
+48: Elevator:			Stopping at this floor
+48: Person 4:	On elevator
+49: Person 1:	10-->0
+49: Person 4:	I pushed the button for floor 2
+49: Person 1:	I pushed the button for floor 10
+50: Elevator:			At 6
+50: Elevator:			Stopping at this floor
+50: Person 0:	On elevator
+51: Person 0:	I pushed the button for floor 4
+52: Elevator:			At 5
+53: Elevator:			At 4
+53: Elevator:			Stopping at this floor
+53: Person 0:	Off elevator, waiting for 7s
+55: Elevator:			At 3
+56: Elevator:			At 2
+56: Elevator:			Stopping at this floor
+56: Person 3:	On elevator
+56: Person 4:	Off elevator, waiting for 1s
+57: Person 3:	I pushed the button for floor 3
+57: Person 4:	2-->10
+57: Person 4:	I pushed the button for floor 2
+58: Elevator:			At 1
+59: Elevator:			At 0
+59: Elevator:			Cycle complete, I saw at least 1 person
+59: Elevator:			Stopping at this floor
+59: Person 2:	Off elevator, waiting for 4s
+60: Person 0:	4-->0
+60: Person 0:	I pushed the button for floor 4
+61: Elevator:			At 1
+62: Elevator:			At 2
+62: Elevator:			Stopping at this floor
+62: Person 4:	On elevator
+63: Person 2:	I'm leaving
+63: Person 4:	I pushed the button for floor 10
+64: Elevator:			At 3
+64: Elevator:			Stopping at this floor
+64: Person 3:	Off elevator, waiting for 3s
+66: Elevator:			At 4
+66: Elevator:			Stopping at this floor
+66: Person 0:	On elevator
+67: Person 3:	3-->4
+67: Person 0:	I pushed the button for floor 0
+67: Person 3:	I pushed the button for floor 3
+68: Elevator:			At 5
+69: Elevator:			At 6
+70: Elevator:			At 7
+71: Elevator:			At 8
+72: Elevator:			At 9
+73: Elevator:			At 10
+73: Elevator:			Stopping at this floor
+73: Person 1:	On elevator
+73: Person 4:	Off elevator, waiting for 10s
+74: Person 1:	I pushed the button for floor 0
+75: Elevator:			At 9
+76: Elevator:			At 8
+77: Elevator:			At 7
+78: Elevator:			At 6
+79: Elevator:			At 5
+80: Elevator:			At 4
+81: Elevator:			At 3
+81: Elevator:			Stopping at this floor
+81: Person 3:	On elevator
+82: Person 3:	I pushed the button for floor 4
+83: Person 4:	10-->0
+83: Person 4:	I pushed the button for floor 10
+83: Elevator:			At 2
+84: Elevator:			At 1
+85: Elevator:			At 0
+85: Elevator:			Cycle complete, I saw at least 1 person
+85: Elevator:			Stopping at this floor
+85: Person 1:	Off elevator, waiting for 4s
+85: Person 0:	Off elevator, waiting for 2s
+87: Elevator:			At 1
+87: Person 0:	I'm leaving
+88: Elevator:			At 2
+89: Person 1:	I'm leaving
+89: Elevator:			At 3
+90: Elevator:			At 4
+90: Elevator:			Stopping at this floor
+90: Person 3:	Off elevator, waiting for 4s
+92: Elevator:			At 5
+93: Elevator:			At 6
+94: Person 3:	4-->0
+94: Person 3:	I pushed the button for floor 4
+94: Elevator:			At 7
+95: Elevator:			At 8
+96: Elevator:			At 9
+97: Elevator:			At 10
+97: Elevator:			Stopping at this floor
+97: Person 4:	On elevator
+98: Person 4:	I pushed the button for floor 0
+99: Elevator:			At 9
+100: Elevator:			At 8
+101: Elevator:			At 7
+102: Elevator:			At 6
+103: Elevator:			At 5
+104: Elevator:			At 4
+104: Elevator:			Stopping at this floor
+104: Person 3:	On elevator
+105: Person 3:	I pushed the button for floor 0
+106: Elevator:			At 3
+107: Elevator:			At 2
+108: Elevator:			At 1
+109: Elevator:			At 0
+109: Elevator:			Cycle complete, I saw at least 1 person
+109: Elevator:			Stopping at this floor
+109: Person 3:	Off elevator, waiting for 5s
+109: Person 4:	Off elevator, waiting for 3s
+111: Elevator:			At 1
+112: Person 4:	I'm leaving
+112: Elevator:			At 2
+113: Elevator:			At 3
+114: Person 3:	I'm leaving
+114: Elevator:			At 4
+115: Elevator:			At 5
+116: Elevator:			At 6
+117: Elevator:			At 7
+118: Elevator:			At 8
+119: Elevator:			At 9
+120: Elevator:			At 10
+121: Elevator:			At 9
+122: Elevator:			At 8
+123: Elevator:			At 7
+124: Elevator:			At 6
+125: Elevator:			At 5
+126: Elevator:			At 4
+127: Elevator:			At 3
+128: Elevator:			At 2
+129: Elevator:			At 1
+130: Elevator:			At 0
+130: Elevator:			Haven't seen anybody this trip, waiting for 10 seconds
+140: Elevator:			At 1
+141: Elevator:			At 2
+142: Elevator:			At 3
+143: Elevator:			At 4
+144: Elevator:			At 5
+145: Elevator:			At 6
+146: Elevator:			At 7
+147: Elevator:			At 8
+148: Elevator:			At 9
+149: Elevator:			At 10
+150: Elevator:			At 9
+151: Elevator:			At 8
+152: Elevator:			At 7
+153: Elevator:			At 6
+154: Elevator:			At 5
+155: Elevator:			At 4
+156: Elevator:			At 3
+157: Elevator:			At 2
+158: Elevator:			At 1
+159: Elevator:			At 0
+159: Elevator:			Nobody was picked up, exiting program
+

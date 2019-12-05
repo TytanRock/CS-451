@@ -115,6 +115,8 @@ int main(int argc, char **args) {
 		_module.people_time[i].id = i; //!< Give person an ID
 	}
 	free(tmp_string); //!< Free malloc'd string
+	
+	/********At this point, global variables can be accessed by other processes. Any use of them must be inside a semaphore********/
 
 	/* Start threads */
 	pthread_create(&_module.lift_thread, NULL, start_lift_thread, NULL);
