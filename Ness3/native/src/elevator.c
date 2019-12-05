@@ -80,6 +80,8 @@ int main(int argc, char **args) {
 	_module.people_threads = malloc(sizeof(pthread_t)*_global.total_people);
 	_module.people_time = malloc(sizeof(person_time)*_global.total_people);
 	initialize_lift();
+	sem_init(&_global.start_semaphore, 0, 1); //!< Initialize semaphore
+	_global.uninitialized_people = _global.total_people;
 	
 	/* Temporarily allocate string to pass into later function */
 	char *tmp_string = malloc(1);
@@ -97,9 +99,6 @@ int main(int argc, char **args) {
 	for (int i = 0; i < _global.total_people; ++i) {
 		pthread_create(&_module.people_threads[i], NULL, start_person_thread, &_module.people_time[i]);
 	}
-
-	/* set global start to 1 so all threads can execute */
-	glob_start = 1;
 
 	/* Wait until lift thread finishes, it ensures every other thread is finished */
 	pthread_join(_module.lift_thread, NULL);

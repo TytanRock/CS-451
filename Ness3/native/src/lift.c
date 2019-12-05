@@ -1,3 +1,15 @@
+/**
+ * Author: Cory Ness
+ * Assignment Number: 3
+ * Date of Submission: 12/5/2019
+ * Name of this file: lift.c
+ * Description of program:
+ *  This program runs an elevator and n number of people
+ *  The people get on and off the elevator and move to specified floors
+ *  They wait for some number of seconds at each floor, and eventually leave the building
+ * This project uses 1 coupon
+ */
+
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -86,7 +98,13 @@ void *start_lift_thread(void *arg) {
 	_module.going_up = 1;
 
 	/* Busy wait until master thread is ready */
-	while(!glob_start);
+	unsigned int unitialized_people = 0;
+	do {
+		sem_wait(&_global.start_semaphore);
+		unitialized_people = _global.uninitialized_people;
+		sem_post(&_global.start_semaphore);
+	}
+	while(unitialized_people != 0);
 	usleep(10000); //!< Wait to ensure people are all initialized before lift
 	printf("Elevator:\t\t\tAt %d\n", 0);
 
