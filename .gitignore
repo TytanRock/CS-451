@@ -44,6 +44,10 @@ Ness2/bin/*
 Ness2/zip/*
 Ness2/gcov/*
 Ness2/*.xml
+Ness3/bin/*
+Ness3/zip/*
+Ness3/gcov/*
+Ness3/*.xml
 
 # Debug files
 *.dSYM/

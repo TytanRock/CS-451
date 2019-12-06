@@ -23,6 +23,9 @@ pipeline {
 				dir('Ness2') {
 					sh 'make'
 				}
+				dir('Ness3') {
+					sh 'make'
+				}
 			}
 		}
 		stage ('Test All') {
@@ -34,6 +37,10 @@ pipeline {
 				dir('Ness2') {
 					sh 'make test'
 					sh './gcov/schedule_test'
+				}
+				dir('Ness3') {
+					sh 'make test'
+					sh './gcov/elevator_test'
 				}
 			}
 		}
@@ -50,6 +57,10 @@ pipeline {
 					sh 'gcovr -r . --xml -o rep.xml'
 					sh 'gcovr -r . --html --html-details -o rep.html'
 				}
+				dir('Ness3/gcov') {
+					sh 'gcovr -r . --xml -o rep.xml'
+					sh 'gcovr -r . --html --html-details -o rep.html'
+				}
 			}
 		}
 	}
@@ -58,8 +69,9 @@ pipeline {
 		always {
 			junit 'Ness1/run_xunit.xml'
 			junit 'Ness2/run_xunit.xml'
+			junit 'Ness3/run_xunit.xml'
 			
-			cobertura coberturaReportFile: 'Ness2/gcov/rep.xml'
+			cobertura coberturaReportFile: 'Ness3/gcov/rep.xml'
 		}
 	}
 }
