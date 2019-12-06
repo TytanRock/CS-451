@@ -90,6 +90,8 @@ void find_options(const int argc, char **args) {
  *  otherwise failure
  */
 int main(int argc, char **args) {
+	
+	printf ("Args: %d\n", argc);
 	/* Initialize module variables */
 	_global.total_people = 1;
 	_global.max_wander_time = 10;

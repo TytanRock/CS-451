@@ -39,10 +39,10 @@ build: $(MainObjs)
 
 test: $(TestObjs)
 	@mkdir $(GcovDir) -p
-	@make build BinDir=$(GcovDir) MainObjDir=$(GcovDir) CFlags=--coverage LFlags=-fprofile-generate
-	@$(CC) $(TestObjs) -o $(LFlags) $(GcovDir)/$(TEST)
+	@make build BinDir=$(GcovDir) MainObjDir=$(GcovDir) CFlags=--coverage LFlags=-fprofile-generate\ -pthread
+	@$(CC) $(TestObjs) -o $(GcovDir)/$(TEST) $(LFlags) -pthread
+	@echo $(MainSrcDir)
 	@cp $(MainSrcDir)/* $(GcovDir)
-	@cp $(ChildSrcDir)/* $(GcovDir)
 	@echo "Linking "$(TEST)" complete"
 
 $(MainObjs): $(MainObjDir)/%.o : $(MainSrcDir)/%.c
