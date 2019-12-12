@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define USAGE "Usage: memory <size>\n"
+#define USAGE "Usage: allocator <size>\n"
 
 static struct {
 	long long total_size;

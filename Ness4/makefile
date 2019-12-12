@@ -1,4 +1,4 @@
-TARGET=memory
+TARGET=allocator
 #TARGET_CHILD=prime
 TEST=$(TARGET)_test
 
