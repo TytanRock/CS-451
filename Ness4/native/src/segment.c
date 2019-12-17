@@ -107,27 +107,28 @@ ERR_CODE allocate_memory(char *name, long long size, strategy strat) {
 			break;
 		case best:
 			;
-			segment_t *best_memory;
-			best_memory = _module.memories;
+			int best_memory;
+			best_memory = 0;
 			for(int i = 0; i < _module.memory_length; ++i) {
-				if(_module.memories[i].free && 
-					_module.memories[i].size < best_memory->size &&
-					_module.memories[i].size > size) {
-					best_memory = &(_module.memories[i]);
+				if((_module.memories[i].free && 
+					_module.memories[i].size < _module.memories[best_memory].size &&
+					_module.memories[i].size > size) ||
+					_module.memories[best_memory].free == 0) {
+					best_memory = i;
 				}
 			}
-			if(best_memory->size < size) {
+			if(_module.memories[best_memory].size < size) {
 				/* Fail this call */
 				return NOT_ENOUGH_MEMORY;
 			}
 			++_module.memory_length;
 			_module.memories = realloc(_module.memories, sizeof(segment_t) * _module.memory_length);
 			_module.memories[_module.memory_length - 1].size = size;
-			_module.memories[_module.memory_length - 1].address = best_memory->address;
+			_module.memories[_module.memory_length - 1].address = _module.memories[best_memory].address;
 			_module.memories[_module.memory_length - 1].free = 0;
 			_module.memories[_module.memory_length - 1].name = name;
-			best_memory->address += size;
-			best_memory->size -= size;
+			_module.memories[best_memory].address += size;
+			_module.memories[best_memory].size -= size;
 			break;
 
 		default: break;
