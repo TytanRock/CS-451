@@ -1,6 +1,8 @@
 #ifndef __SEGMENT_H_
 #define __SEGMENT_H_
 
+#include "global.h"
+
 typedef struct _segment_t {
 	long long size;
 	long long address;
@@ -10,9 +12,14 @@ typedef struct _segment_t {
 }segment_t;
 
 typedef enum _strategy {
-	worst,
-	best,
-	first,
+	worst = 'W',
+	best = 'B',
+	first = 'F',
 }strategy;
+
+ERR_CODE allocate_memory(char *name, long long size, strategy strat);
+ERR_CODE deallocate_memory(char *name);
+void print_memory();
+void initialize_memory(long long total_size);
 
 #endif //__SEGMENT_H_
