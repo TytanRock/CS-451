@@ -30,19 +30,16 @@ void combine_adjacent_free() {
 				second->size = second->size + first->size;
 				/* Clear first size */
 				first->size = 0;
-				exists[i] = 0;
-				/* Free memory allocated in first */
-				free(first->name);
-			} else {
+				first->address = second->address;
 				exists[i] = 1;
 			}
 		}
 	}
 
 	/* Go through the exists column and remove everything that doesn't exist anymore */
-	for(int i = _module.memory_length - 1; i >= 0; ++i) {
+	for(int i = _module.memory_length - 1; i >= 0; --i) {
 		/* If segment doesn't exist, replace it with end of array */
-		if(!exists[i]) {
+		if(exists[i] == 1) {
 			_module.memories[i] = _module.memories[_module.memory_length - 1];
 			--_module.memory_length;
 		}
@@ -50,6 +47,7 @@ void combine_adjacent_free() {
 
 	/* All unused segments are gone, realloc to the correct size */
 	_module.memories = realloc(_module.memories, _module.memory_length * sizeof(segment_t));
+	free(exists);
 }
 
 int compare(const void *a, const void* b) {
@@ -68,23 +66,24 @@ ERR_CODE allocate_memory(char *name, long long size, strategy strat) {
 	switch(strat) {
 		case worst:
 			;
-			segment_t *worst_memory;
-			worst_memory = _module.memories;
+			int worst_memory = 0;
 			for(int i = 0; i < _module.memory_length; ++i) {
-				if(_module.memories[i].free && _module.memories[i].size > worst_memory->size) {
-					worst_memory = &(_module.memories[i]);
+				if(_module.memories[i].free && _module.memories[i].size > _module.memories[worst_memory].size) {
+					worst_memory = i;
 				}
 			}
-			if(worst_memory->size < size) {
+			if(_module.memories[worst_memory].size < size || _module.memories[worst_memory].free == 0) {
 				/* Fail this call */
 				return NOT_ENOUGH_MEMORY;
 			}
 			++_module.memory_length;
 			_module.memories = realloc(_module.memories, sizeof(segment_t) * _module.memory_length);
 			_module.memories[_module.memory_length - 1].size = size;
-			_module.memories[_module.memory_length - 1].address = worst_memory->address + size;
+			_module.memories[_module.memory_length - 1].address = _module.memories[worst_memory].address;
 			_module.memories[_module.memory_length - 1].free = 0;
 			_module.memories[_module.memory_length - 1].name = name;
+			_module.memories[worst_memory].address += size;
+			_module.memories[worst_memory].size -= size;
 			break;
 		case first:
 			;
@@ -94,9 +93,11 @@ ERR_CODE allocate_memory(char *name, long long size, strategy strat) {
 					++_module.memory_length;
 					_module.memories = realloc(_module.memories, sizeof(segment_t) * _module.memory_length);
 					_module.memories[_module.memory_length - 1].size = size;
-					_module.memories[_module.memory_length - 1].address = _module.memories[i].address + size;
+					_module.memories[_module.memory_length - 1].address = _module.memories[i].address;
 					_module.memories[_module.memory_length - 1].free = 0;
 					_module.memories[_module.memory_length - 1].name = name;
+					_module.memories[i].address += size;
+					_module.memories[i].size -= size;
 					success = 1;
 					break;
 				}
@@ -111,13 +112,15 @@ ERR_CODE allocate_memory(char *name, long long size, strategy strat) {
 			best_memory = 0;
 			for(int i = 0; i < _module.memory_length; ++i) {
 				if((_module.memories[i].free && 
-					_module.memories[i].size < _module.memories[best_memory].size &&
-					_module.memories[i].size > size) ||
-					_module.memories[best_memory].free == 0) {
+						_module.memories[i].size < _module.memories[best_memory].size &&
+						_module.memories[i].size > size) ||
+						(_module.memories[best_memory].free == 0 ||
+						 _module.memories[best_memory].size < size)) {
 					best_memory = i;
 				}
 			}
-			if(_module.memories[best_memory].size < size) {
+			if(_module.memories[best_memory].size < size ||
+				_module.memories[best_memory].free == 0) {
 				/* Fail this call */
 				return NOT_ENOUGH_MEMORY;
 			}
@@ -142,8 +145,10 @@ ERR_CODE deallocate_memory(char *name) {
 	/* Go through every memory segment and find the same name */
 	for(int i = 0; i < _module.memory_length; ++i) {
 		/* Compare current segment for name */
-		if(strcmp(_module.memories[i].name, name) == 0) {
+		if(_module.memories[i].free == 0 && strcmp(_module.memories[i].name, name) == 0) {
 			memory_to_clear = &_module.memories[i];
+			/* Free malloc'd name */
+			free(_module.memories[i].name);
 		}
 	}
 	
