@@ -10,54 +10,59 @@ static struct {
 	int memory_length;
 } _module;
 
-void combine_adjacent_free() {
-	/* O(n^2) algorithm */
-	
-	/* Create an array of flags to determine if the segment still exists */
-	int *exists;
-	exists = calloc(sizeof(int), _module.memory_length);
-
-	/* We look at every segment in the array */
-	for(int i = 0; i < _module.memory_length; ++i) {
-		/* We compare it against every other segment in the array */
-		for(int j = 0; j < _module.memory_length; ++j) {
-			segment_t *first = &_module.memories[i];
-			segment_t *second = &_module.memories[j];
-
-			/* If they are both free and adjacent, combine them */
-			if(first->free && second->free && first->address == second->address + second->size) {
-				/* Modify second size since it's before first segment */
-				second->size = second->size + first->size;
-				/* Clear first size */
-				first->size = 0;
-				first->address = second->address;
-				exists[i] = 1;
-			}
-		}
-	}
-
-	/* Go through the exists column and remove everything that doesn't exist anymore */
-	for(int i = _module.memory_length - 1; i >= 0; --i) {
-		/* If segment doesn't exist, replace it with end of array */
-		if(exists[i] == 1) {
-			_module.memories[i] = _module.memories[_module.memory_length - 1];
-			--_module.memory_length;
-		}
-	}
-
-	/* All unused segments are gone, realloc to the correct size */
-	_module.memories = realloc(_module.memories, _module.memory_length * sizeof(segment_t));
-	free(exists);
-}
 
 int compare(const void *a, const void* b) {
 	return ((segment_t*)a)->address - ((segment_t*)b)->address;
 }
 
-void initialize_memory(long long size) {
+void combine_adjacent_free() {
+	/* Keep combining until memory length doesn't change */
+	int old_length;
+	do {
+		old_length = _module.memory_length;
+		/* First, sort all the memory so that we can go down the line */
+		qsort(_module.memories, _module.memory_length, sizeof(segment_t), compare);
+		
+		/* Create an array of flags to determine if the segment still exists */
+		int *exists;
+		exists = calloc(sizeof(int), _module.memory_length);
+
+		/* We look at every segment in the array */
+		for(int i = 1; i < _module.memory_length; ++i) {		
+			segment_t *first = &_module.memories[i-1];
+			segment_t *second = &_module.memories[i];
+
+			/* If they are both free and adjacent, combine them */
+			if(first->free && second->free && second->address == first->address + first->size) {
+				/* Modify second size since it's before first segment */
+				first->size += second->size;
+				/* Clear first size */
+				second->size = 0;
+				second->address = first->address;
+				exists[i] = 1;
+			}
+			
+		}
+
+		/* Go through the exists column and remove everything that doesn't exist anymore */
+		for(int i = _module.memory_length - 1; i >= 0; --i) {
+			/* If segment doesn't exist, replace it with end of array */
+			if(exists[i] == 1) {
+				_module.memories[i] = _module.memories[_module.memory_length - 1];
+				--_module.memory_length;
+			}
+		}
+
+		/* All unused segments are gone, realloc to the correct size */
+		_module.memories = realloc(_module.memories, _module.memory_length * sizeof(segment_t));
+		free(exists);
+	} while (_module.memory_length != old_length);
+}
+
+void initialize_memory() {
 	_module.memories = malloc(sizeof(segment_t) * 1);
 	_module.memories[0].address = 0;
-	_module.memories[0].size = size;
+	_module.memories[0].size = _global.total_size;
 	_module.memories[0].free = 1;
 	_module.memory_length = 1;
 }
@@ -84,12 +89,19 @@ ERR_CODE allocate_memory(char *name, long long size, strategy strat) {
 			_module.memories[_module.memory_length - 1].name = name;
 			_module.memories[worst_memory].address += size;
 			_module.memories[worst_memory].size -= size;
+			if(_module.memories[worst_memory].size == 0) {
+				/* Remove it from the list */
+				_module.memories[worst_memory] = _module.memories[_module.memory_length - 1];
+				--_module.memory_length;
+				
+				_module.memories = realloc(_module.memories, sizeof(segment_t) * _module.memory_length);
+			}
 			break;
 		case first:
 			;
 			int success = 0;
 			for(int i = 0; i < _module.memory_length; ++i) {
-				if(_module.memories[i].free && _module.memories[i].size > size) {
+				if(_module.memories[i].free && _module.memories[i].size >= size) {
 					++_module.memory_length;
 					_module.memories = realloc(_module.memories, sizeof(segment_t) * _module.memory_length);
 					_module.memories[_module.memory_length - 1].size = size;
@@ -99,6 +111,13 @@ ERR_CODE allocate_memory(char *name, long long size, strategy strat) {
 					_module.memories[i].address += size;
 					_module.memories[i].size -= size;
 					success = 1;
+
+					if(_module.memories[i].size == 0) {
+						_module.memories[i] = _module.memories[_module.memory_length - 1];
+						--_module.memory_length;
+
+						_module.memories = realloc(_module.memories, sizeof(segment_t) * _module.memory_length);
+					}
 					break;
 				}
 			}
@@ -132,6 +151,13 @@ ERR_CODE allocate_memory(char *name, long long size, strategy strat) {
 			_module.memories[_module.memory_length - 1].name = name;
 			_module.memories[best_memory].address += size;
 			_module.memories[best_memory].size -= size;
+
+			if(_module.memories[best_memory].size == 0) {
+				_module.memories[best_memory] = _module.memories[_module.memory_length - 1];
+				--_module.memory_length;
+
+				_module.memories = realloc(_module.memories, sizeof(segment_t) * _module.memory_length);
+			}
 			break;
 
 		default: break;
@@ -160,6 +186,33 @@ ERR_CODE deallocate_memory(char *name) {
 	memory_to_clear->free = 1;
 
 	/* Combine adjacent free memory segments */
+	combine_adjacent_free();
+
+	return OK;
+}
+
+ERR_CODE compact_memory() {
+	/* First, sort all the memory so that we can go down the line */
+	qsort(_module.memories, _module.memory_length, sizeof(segment_t), compare);
+
+	/* Create a temporary variable that keeps track of the last available address */
+	long long last_address = 0;
+	long long last_free = _global.total_size;
+
+	/* Go down the line finding every non-free memory and pushing it to the top */
+	for(int i = 0; i < _module.memory_length; ++i) {
+		/* Check to see if it's taken up */
+		if(_module.memories[i].free == 0) {
+			/* Push it to the top */
+			_module.memories[i].address = last_address;
+			last_address += _module.memories[i].size;
+		} else {
+			/* Push free space to the bottom */
+			last_free -= _module.memories[i].size;
+			_module.memories[i].address = last_free;
+		}
+	}
+	/* Take care of all the combined segments now */
 	combine_adjacent_free();
 
 	return OK;

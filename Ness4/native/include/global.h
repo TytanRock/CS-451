@@ -7,4 +7,9 @@ typedef enum _ERR_CODE {
 	NOT_ENOUGH_MEMORY = -1,
 } ERR_CODE;
 
+/* Struct that holds global members */
+struct {
+	long long total_size;
+} _global;
+
 #endif //__GLOBAL_H_

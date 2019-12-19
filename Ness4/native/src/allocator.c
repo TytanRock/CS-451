@@ -6,10 +6,6 @@
 
 #define USAGE "Usage: allocator <size>\n"
 
-static struct {
-	long long total_size;
-} _module;
-
 void execute_command(char *command, size_t strlen) {
 	if(strncmp("RQ", command, 2) == 0) {
 		/* Requesting memory, so let's parse for name and size */
@@ -37,9 +33,17 @@ void execute_command(char *command, size_t strlen) {
 		/* Remove segment */
 		deallocate_memory(name);
 	}
+	if(strncmp("C", command, 1) == 0) {
+		/* Compacting memory */
+		compact_memory();
+	}
 	if(strncmp("STAT", command, 4) == 0) {
 		/* Print everything */
 		print_memory();
+	}
+	if(strncmp("X", command, 1) == 0) {
+		/* Exit */
+		exit(EXIT_SUCCESS);
 	}
 }
 
@@ -52,8 +56,8 @@ int main(int argc, char **args) {
 	}
 	
 	/* Assume parameter is successful */
-	_module.total_size = atoi(args[1]);
-	if(_module.total_size <= 0) {
+	_global.total_size = atoi(args[1]);
+	if(_global.total_size <= 0) {
 		/* If it isn't, yell at user */
 		printf("Invalid parameter passed\n");
 		printf(USAGE);
@@ -64,7 +68,7 @@ int main(int argc, char **args) {
 	line = NULL;
 	size_t line_length;
 
-	initialize_memory(_module.total_size);
+	initialize_memory();
 
 	/* Infinitely prompt user until they interrupt it out */
 	while(1) {
