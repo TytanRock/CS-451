@@ -5,6 +5,8 @@ typedef enum _ERR_CODE {
 	OK = 0,
 
 	NOT_ENOUGH_MEMORY = -1,
+	INVALID_COMMAND = -2,
+	INVALID_ARGUMENTS = -3,
 } ERR_CODE;
 
 /* Struct that holds global members */

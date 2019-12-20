@@ -5,21 +5,35 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+ * Keep a struct holding all the relevant information for this module
+ */
 static struct {
-	segment_t *memories;
-	int memory_length;
+	segment_t *memories; // Array of segments
+	int memory_length; // Length of the array
 } _module;
 
-
+/**
+ * compare
+ * Purpose: Compare two segments
+ * Parameters:
+ *  a - First segment
+ *  b - Second segment
+ * Returns - 0 if equal, + if a>b, - if a<b
+ */
 int compare(const void *a, const void* b) {
-	return ((segment_t*)a)->address - ((segment_t*)b)->address;
+	return ((segment_t*)a)->address - ((segment_t*)b)->address; // Just subtract address to get first value
 }
 
+/**
+ * combine_adjacent_free
+ * Purpose: Combine adjacent free segments
+ */
 void combine_adjacent_free() {
 	/* Keep combining until memory length doesn't change */
-	int old_length;
+	int old_length; // Use to figure out if we've gotten smaller
 	do {
-		old_length = _module.memory_length;
+		old_length = _module.memory_length; // Set this variable to current length
 		/* First, sort all the memory so that we can go down the line */
 		qsort(_module.memories, _module.memory_length, sizeof(segment_t), compare);
 		
@@ -56,10 +70,15 @@ void combine_adjacent_free() {
 		/* All unused segments are gone, realloc to the correct size */
 		_module.memories = realloc(_module.memories, _module.memory_length * sizeof(segment_t));
 		free(exists);
-	} while (_module.memory_length != old_length);
+	} while (_module.memory_length != old_length); // Do this again if the segment array changed
 }
 
+/**
+ * initialize_memory
+ * Purpose: Initialize this module
+ */
 void initialize_memory() {
+	/* Initialize all module variables */
 	_module.memories = malloc(sizeof(segment_t) * 1);
 	_module.memories[0].address = 0;
 	_module.memories[0].size = _global.total_size;
@@ -67,20 +86,34 @@ void initialize_memory() {
 	_module.memory_length = 1;
 }
 
+/**
+ * allocate_memory
+ * Purpose: Create a new segment with specified size, following the specified strategy
+ * Parameters:
+ *  name - name of segment
+ *  size - size of segment
+ *  strat - strategy used to allocate memory
+ * Returns - Error code based on succss of function
+ */
 ERR_CODE allocate_memory(char *name, long long size, strategy strat) {
+	/* Switch allocation scheme based on strategy */
 	switch(strat) {
-		case worst:
-			;
+		case worst: ; // Cannot declare immediately after a label
 			int worst_memory = 0;
+			/* Find worst spot for memory allocation */
 			for(int i = 0; i < _module.memory_length; ++i) {
+				/* If this segment is worse, use it */
 				if(_module.memories[i].free && _module.memories[i].size > _module.memories[worst_memory].size) {
 					worst_memory = i;
 				}
 			}
+			/* If there is no valid entry, let user know there was no space */
 			if(_module.memories[worst_memory].size < size || _module.memories[worst_memory].free == 0) {
 				/* Fail this call */
 				return NOT_ENOUGH_MEMORY;
 			}
+
+			/* Go through and create a new segment, modifying everything needed */
 			++_module.memory_length;
 			_module.memories = realloc(_module.memories, sizeof(segment_t) * _module.memory_length);
 			_module.memories[_module.memory_length - 1].size = size;
@@ -89,19 +122,24 @@ ERR_CODE allocate_memory(char *name, long long size, strategy strat) {
 			_module.memories[_module.memory_length - 1].name = name;
 			_module.memories[worst_memory].address += size;
 			_module.memories[worst_memory].size -= size;
+
+			/* If we used up the rest of the space, we need to remove this segment */
 			if(_module.memories[worst_memory].size == 0) {
 				/* Remove it from the list */
 				_module.memories[worst_memory] = _module.memories[_module.memory_length - 1];
 				--_module.memory_length;
 				
+				/* This actually removes the memory */
 				_module.memories = realloc(_module.memories, sizeof(segment_t) * _module.memory_length);
 			}
 			break;
-		case first:
-			;
+		case first: ; // Cannot declare immediately after a label
 			int success = 0;
+			/* Find the first spot for memory allocation */
 			for(int i = 0; i < _module.memory_length; ++i) {
+				/* If this fits, use it */
 				if(_module.memories[i].free && _module.memories[i].size >= size) {
+					/* Go through and create a new segment, modifying everything needed */
 					++_module.memory_length;
 					_module.memories = realloc(_module.memories, sizeof(segment_t) * _module.memory_length);
 					_module.memories[_module.memory_length - 1].size = size;
@@ -112,24 +150,29 @@ ERR_CODE allocate_memory(char *name, long long size, strategy strat) {
 					_module.memories[i].size -= size;
 					success = 1;
 
+					/* If we used up the rest of the space, we need to remove the segment */
 					if(_module.memories[i].size == 0) {
 						_module.memories[i] = _module.memories[_module.memory_length - 1];
 						--_module.memory_length;
 
+						/* Actually removes it from memory */
 						_module.memories = realloc(_module.memories, sizeof(segment_t) * _module.memory_length);
 					}
 					break;
 				}
 			}
+			/* If we never ran this, we need to let user know there was no space */
 			if(!success) {
+				/* Fail this call */
 				return NOT_ENOUGH_MEMORY;
 			}
 			break;
-		case best:
-			;
+		case best: ;
 			int best_memory;
 			best_memory = 0;
+			/* Find the best memory location for this */
 			for(int i = 0; i < _module.memory_length; ++i) {
+				/* If this is a better location for memory, use it */
 				if((_module.memories[i].free && 
 						_module.memories[i].size < _module.memories[best_memory].size &&
 						_module.memories[i].size > size) ||
@@ -138,11 +181,14 @@ ERR_CODE allocate_memory(char *name, long long size, strategy strat) {
 					best_memory = i;
 				}
 			}
+			/* If there is no valid memory slot, we need to fail this */
 			if(_module.memories[best_memory].size < size ||
 				_module.memories[best_memory].free == 0) {
 				/* Fail this call */
 				return NOT_ENOUGH_MEMORY;
 			}
+
+			/* Go through and create a new segment, modifying everything needed */
 			++_module.memory_length;
 			_module.memories = realloc(_module.memories, sizeof(segment_t) * _module.memory_length);
 			_module.memories[_module.memory_length - 1].size = size;
@@ -152,20 +198,27 @@ ERR_CODE allocate_memory(char *name, long long size, strategy strat) {
 			_module.memories[best_memory].address += size;
 			_module.memories[best_memory].size -= size;
 
+			/* If we used up the rest of the psace, we need to remove the segment */
 			if(_module.memories[best_memory].size == 0) {
 				_module.memories[best_memory] = _module.memories[_module.memory_length - 1];
 				--_module.memory_length;
 
+				/* This actually removes the segment */
 				_module.memories = realloc(_module.memories, sizeof(segment_t) * _module.memory_length);
 			}
 			break;
 
-		default: break;
+		default: break; // Default condition doesn't do anything
 	}
 
-	return OK;
+	return OK; /* We made it, return OK */
 }
 
+/**
+ * deallocate_memory
+ * Purpose: Remove a segment from the arrays
+ *
+ */
 ERR_CODE deallocate_memory(char *name) {
 	segment_t *memory_to_clear = NULL;
 	/* Go through every memory segment and find the same name */
@@ -218,7 +271,7 @@ ERR_CODE compact_memory() {
 	return OK;
 }
 
-void print_memory() {
+ERR_CODE print_memory() {
 	/* First make sure everything is sorted in address order */
 	qsort(_module.memories, _module.memory_length, sizeof(segment_t), compare);
 
@@ -230,5 +283,7 @@ void print_memory() {
 				_module.memories[i].free ? "Free Memory" :
 				_module.memories[i].name);
 	}
+
+	return OK;
 }
 

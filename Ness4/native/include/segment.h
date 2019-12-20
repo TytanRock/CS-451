@@ -20,7 +20,7 @@ typedef enum _strategy {
 ERR_CODE allocate_memory(char *name, long long size, strategy strat);
 ERR_CODE deallocate_memory(char *name);
 ERR_CODE compact_memory();
-void print_memory();
+ERR_CODE print_memory();
 void initialize_memory();
 
 #endif //__SEGMENT_H_
