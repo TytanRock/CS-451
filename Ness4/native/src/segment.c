@@ -1,3 +1,15 @@
+/**
+ * Author: Cory Ness
+ * Assignment Number: 4
+ * Date of Submission: 12/19/2019
+ * Name of this file: segment.c
+ * Description of program:
+ *  Allocate memory based on user input, following different strategies
+ *  Compact when needed
+ *  And free memory based on user request
+ * This project uses 1 coupon
+ */
+
 #include "../include/segment.h"
 #include "../include/global.h"
 
@@ -217,7 +229,9 @@ ERR_CODE allocate_memory(char *name, long long size, strategy strat) {
 /**
  * deallocate_memory
  * Purpose: Remove a segment from the arrays
- *
+ * Parameters:
+ *  name - name of segment to remove
+ * Return - Error code based the status of the function
  */
 ERR_CODE deallocate_memory(char *name) {
 	segment_t *memory_to_clear = NULL;
@@ -231,8 +245,9 @@ ERR_CODE deallocate_memory(char *name) {
 		}
 	}
 	
+	/* If memory doesn't exist, let user know */
 	if(memory_to_clear == NULL) {
-		return -1;
+		return SEGMENT_DOESNT_EXIST;
 	}
 
 	/* Set memory free flag */
@@ -241,9 +256,14 @@ ERR_CODE deallocate_memory(char *name) {
 	/* Combine adjacent free memory segments */
 	combine_adjacent_free();
 
-	return OK;
+	return OK; // Good to go, returns OK
 }
 
+/**
+ * compact_memory
+ * Purpose: Compact the memory, pushing all the memory to the top
+ * Returns - Error code based on status of the function
+ */
 ERR_CODE compact_memory() {
 	/* First, sort all the memory so that we can go down the line */
 	qsort(_module.memories, _module.memory_length, sizeof(segment_t), compare);
@@ -268,15 +288,21 @@ ERR_CODE compact_memory() {
 	/* Take care of all the combined segments now */
 	combine_adjacent_free();
 
-	return OK;
+	return OK; // Good to go, returns OK
 }
 
+/**
+ * print_memory
+ * Purpose: Print all the segments out in address order
+ * Returns - Error code based on status of function
+ */
 ERR_CODE print_memory() {
 	/* First make sure everything is sorted in address order */
 	qsort(_module.memories, _module.memory_length, sizeof(segment_t), compare);
 
 	/* Then print address, size, name of every segment */
 	for(int i = 0; i < _module.memory_length; ++i) {
+		/* Print following this format */
 		printf("Address: %10lld Size: %10lld Name: %s\n", 
 				_module.memories[i].address,
 				_module.memories[i].size,
@@ -284,6 +310,6 @@ ERR_CODE print_memory() {
 				_module.memories[i].name);
 	}
 
-	return OK;
+	return OK; // Good to go, return OK
 }
 

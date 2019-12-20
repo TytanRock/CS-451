@@ -1,3 +1,15 @@
+/**
+ * Author: Cory Ness
+ * Assignment Number: 4
+ * Date of Submission: 12/19/2019
+ * Name of this file: allocator.c
+ * Description of program:
+ *  Allocate memory based on user input, following different strategies
+ *  Compact when needed
+ *  And free memory based on user request
+ * This project uses 1 coupon
+ */
+
 #include "../include/segment.h"
 
 #include <stdio.h>
@@ -13,6 +25,7 @@
 	X\n"
 #define COMMAND_USAGE "Invalid command, commands are: RQ, RL, C, STAT, X\n"
 #define NO_MEMORY "Unable to allocate space, no continuous segment has enough memory. Consider compacting or releasing some memory\n"
+#define DOESNT_EXIST "Name of memory doesn't exist, use STATUS to see names of segments that do exist\n" 
 
 /**
  * execute_command
@@ -125,6 +138,9 @@ int main(int argc, char **args) {
 				break;
 			case NOT_ENOUGH_MEMORY: // Let user know there isn't enough memory
 				printf(NO_MEMORY);
+				break;
+			case SEGMENT_DOESNT_EXIST: // Let user know the segment name doesn't exist
+				printf(DOESNT_EXIST);
 				break;
 		}
 		/* Do this again */
