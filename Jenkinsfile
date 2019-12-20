@@ -26,6 +26,9 @@ pipeline {
 				dir('Ness3') {
 					sh 'make'
 				}
+				dir('Ness4') {
+					sh 'make'
+				}
 			}
 		}
 		stage ('Test All') {
