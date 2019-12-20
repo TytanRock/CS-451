@@ -220,7 +220,7 @@ ERR_CODE allocate_memory(char *name, long long size, strategy strat) {
 			}
 			break;
 
-		default: break; // Default condition doesn't do anything
+		default: return INVALID_ARGUMENTS; // Default condition means something went wrong
 	}
 
 	return OK; /* We made it, return OK */
@@ -299,6 +299,7 @@ ERR_CODE compact_memory() {
 ERR_CODE print_memory() {
 	/* First make sure everything is sorted in address order */
 	qsort(_module.memories, _module.memory_length, sizeof(segment_t), compare);
+	printf("\n");
 
 	/* Then print address, size, name of every segment */
 	for(int i = 0; i < _module.memory_length; ++i) {

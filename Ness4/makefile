@@ -66,9 +66,9 @@ clean:
 	@rm -rf $(BinDir)
 	@rm -rf $(GcovDir)
 	@rm -f *.xml
-	@rm -rf Ness3
+	@rm -rf Ness4
 	@rm -f demo.txt
-	@rm -f Ness3.zip
+	@rm -f Ness4.zip
 
 zipup: clean
 	@make
@@ -80,10 +80,9 @@ zipup: clean
 	@cp makefile zip/
 	@cp README.md zip/
 	@cp test.txt zip/
-	@cp longrun.txt zip/
-	@mv zip Ness3
-	@zip -r tmp.zip Ness3
+	@mv zip Ness4
+	@zip -r tmp.zip Ness4
 	@make clean
-	@rm -rf Ness3
-	@mv tmp.zip Ness3.zip
+	@rm -rf Ness4
+	@mv tmp.zip Ness4.zip
 

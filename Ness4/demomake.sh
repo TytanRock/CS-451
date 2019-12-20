@@ -4,10 +4,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd ${DIR}
 
 tests=(	"cat test.txt"
-	"./bin/elevator -p 2 < test.txt"
-	"./bin/elevator -p 1 -w 2 -f 2 <<< \"2 1 1 0 1\""
-	"cat longrun.txt"
-	"./bin/elevator -p 5 < longrun.txt"
+	"./bin/allocator 1000000 < test.txt"
 	)
 
 echo "These are the test cases used for the program:" > demo.txt
